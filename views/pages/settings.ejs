@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex">
+    
+    <%- include('../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-10">
+        <h1 class="text-3xl font-bold mb-8 flex items-center gap-3">
+            <span>🛠</span> Settings
+        </h1>
+
+        <% if (success) { %>
+            <div class="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl mb-6">
+                ✅ Settings updated successfully!
+            </div>
+        <% } %>
+
+        <form action="/settings/update" method="POST" enctype="multipart/form-data" class="max-w-4xl space-y-8">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+                <h2 class="text-xl font-bold mb-6 <%= theme.textLight %> border-b border-slate-800 pb-2">Account Details</h2>
+                
+                <div class="flex items-start gap-8">
+                    <div class="relative group">
+                        <img src="<%= user.image %>" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover" id="settingsPreview">
+                        <input type="file" name="profileImage" id="settingsFile" class="hidden" accept="image/*" onchange="previewSettingsImage(event)">
+                        <label for="settingsFile" class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer text-xs font-bold">CHANGE</label>
+                    </div>
+
+                    <div class="flex-1 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">DISPLAY NAME</label>
+                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#0B1120] border border-slate-800 p-3 rounded-xl focus:<%= theme.border %> outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">BIO</label>
+                            <textarea name="bio" class="w-full bg-[#0B1120] border border-slate-800 p-3 rounded-xl h-24 focus:<%= theme.border %> outline-none resize-none"><%= user.bio %></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-800">
+                    <h3 class="text-sm font-bold text-slate-400 mb-4">Change Password</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="password" name="newPassword" placeholder="New Password" class="w-full bg-[#0B1120] border border-slate-800 p-3 rounded-xl focus:<%= theme.border %> outline-none">
+                        <input type="password" name="confirmPassword" placeholder="Confirm New Password" class="w-full bg-[#0B1120] border border-slate-800 p-3 rounded-xl focus:<%= theme.border %> outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+                <h2 class="text-xl font-bold mb-6 <%= theme.textLight %> border-b border-slate-800 pb-2">Appearance</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="theme" value="blue" class="hidden peer" <%= (!user.preferences?.theme || user.preferences?.theme === 'blue') ? 'checked' : '' %>>
+                        <div class="p-4 rounded-xl border-2 border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition text-center hover:bg-slate-800">
+                            <div class="w-full h-8 bg-blue-600 rounded-lg mb-2 shadow-lg shadow-blue-900/50"></div>
+                            <span class="font-bold text-sm text-slate-300">Cosmic Blue</span>
+                        </div>
+                    </label>
+                    
+                    <label class="cursor-pointer">
+                        <input type="radio" name="theme" value="purple" class="hidden peer" <%= user.preferences?.theme === 'purple' ? 'checked' : '' %>>
+                        <div class="p-4 rounded-xl border-2 border-slate-700 peer-checked:border-purple-500 peer-checked:bg-purple-500/10 transition text-center hover:bg-slate-800">
+                            <div class="w-full h-8 bg-purple-600 rounded-lg mb-2 shadow-lg shadow-purple-900/50"></div>
+                            <span class="font-bold text-sm text-slate-300">Nebula Purple</span>
+                        </div>
+                    </label>
+                    
+                    <label class="cursor-pointer">
+                        <input type="radio" name="theme" value="green" class="hidden peer" <%= user.preferences?.theme === 'green' ? 'checked' : '' %>>
+                        <div class="p-4 rounded-xl border-2 border-slate-700 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition text-center hover:bg-slate-800">
+                            <div class="w-full h-8 bg-emerald-600 rounded-lg mb-2 shadow-lg shadow-emerald-900/50"></div>
+                            <span class="font-bold text-sm text-slate-300">Matrix Green</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button type="submit" class="<%= theme.bg %> <%= theme.bgHover %> text-white px-10 py-4 rounded-xl font-bold shadow-lg transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        function previewSettingsImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){ document.getElementById('settingsPreview').src = reader.result; };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex">
+
+    <%- include('../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-10">
+        <a href="/" class="flex items-center text-slate-400 hover:text-blue-400 mb-6 transition w-fit">
+            <span class="mr-2">←</span> Back to Feed
+        </a>
+
+        <div class="max-w-4xl mx-auto">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2"><%= idea.title %></h1>
+                    <div class="flex items-center space-x-3 text-sm">
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-400 font-bold rounded-full text-xs uppercase">
+                            <%= idea.category %>
+                        </span>
+                        <span class="text-slate-500">Posted by <%= idea.author %></span>
+                        
+                        <% if (user && idea.authorId && user._id.toString() === idea.authorId.toString()) { %>
+                            <span class="text-slate-700">|</span>
+                            <a href="/post/<%= idea._id %>/edit" class="text-blue-500 hover:text-blue-400 font-bold text-xs flex items-center">
+                                ✎ Edit
+                            </a>
+                            <span class="text-slate-700">|</span>
+                            <a href="/post/<%= idea._id %>/delete"
+                               onclick="return confirm('Are you sure you want to delete this post?')"
+                               class="text-red-500 hover:text-red-400 font-bold text-xs flex items-center">
+                                🗑 Delete
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <a href="/post/<%= idea._id %>/raise" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition border border-slate-700">
+                        <span>▲</span> <span><%= (idea.upvotes || []).length %> Raise</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- IMAGE GALLERY -->
+            <% if(idea.images && idea.images.length > 0) { %>
+                <div class="grid grid-cols-<%= idea.images.length > 1 ? '2' : '1' %> gap-4 mb-8">
+                    <% idea.images.forEach(img => { %>
+                        <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 h-64">
+                            <img src="<%= img.src %>" 
+                                 class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <!-- DESCRIPTION -->
+            <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl mb-8">
+                <h3 class="text-lg font-bold text-slate-300 mb-4 border-b border-slate-800 pb-2">Project Details</h3>
+                <p class="text-slate-300 leading-relaxed whitespace-pre-wrap"><%= idea.description %></p>
+            </div>
+
+            <!-- COMMENTS -->
+            <div class="bg-[#0B1120] border border-slate-800 p-8 rounded-2xl">
+                <h3 class="text-xl font-bold mb-6">Discussion (<%= (idea.comments || []).length %>)</h3>
+                
+                <% if(user) { %>
+                    <form action="/post/<%= idea._id %>/comment" method="POST" class="flex gap-4 mb-8">
+                        <img src="<%= user.image %>" class="w-10 h-10 rounded-full border border-slate-700">
+                        <input type="text" name="comment" placeholder="Add to the discussion..." 
+                               class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 focus:border-blue-500 outline-none transition" required>
+                        <button type="submit" class="bg-blue-600/20 text-blue-400 px-6 py-2 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition">
+                            Post
+                        </button>
+                    </form>
+                <% } else { %>
+                    <div class="bg-blue-900/10 border border-blue-900/30 p-4 rounded-xl text-center mb-8">
+                        <p class="text-blue-400 text-sm">
+                            Please <a href="/login" class="underline font-bold">login</a> to join the discussion.
+                        </p>
+                    </div>
+                <% } %>
+
+                <div class="space-y-6">
+                    <% (idea.comments || []).forEach(comment => { %>
+                        <div class="flex gap-4 group">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 border border-slate-700">
+                                <%= comment.user ? comment.user[0].toUpperCase() : 'U' %>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-sm text-slate-300"><%= comment.user %></span>
+                                    <span class="text-xs text-slate-600"><%= new Date(comment.createdAt).toLocaleDateString() %></span>
+                                    
+                                    <% if (user && comment.userId && user._id.toString() === comment.userId.toString()) { %>
+                                        <a href="/post/<%= idea._id %>/comment/<%= comment._id %>/delete"
+                                           class="text-red-500/50 hover:text-red-500 text-[10px] ml-2 opacity-0 group-hover:opacity-100 transition">
+                                            Delete
+                                        </a>
+                                    <% } %>
+                                </div>
+                                <p class="text-slate-400 text-sm"><%= comment.text %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex">
+    <%- include('../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-10">
+        <h1 class="text-3xl font-bold mb-8">Edit Innovation</h1>
+
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-3xl">
+            <form action="/post/<%= idea._id %>/edit" method="POST" enctype="multipart/form-data" class="space-y-6">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Project Title</label>
+                    <input type="text" name="title" value="<%= idea.title %>" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Category</label>
+                    <select name="category" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none">
+                        <option value="Tech" <%= idea.category === 'Tech' ? 'selected' : '' %>>Tech Upgrade</option>
+                        <option value="Startup" <%= idea.category === 'Startup' ? 'selected' : '' %>>Startup Idea</option>
+                        <option value="Social" <%= idea.category === 'Social' ? 'selected' : '' %>>Social Impact</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Description</label>
+                    <textarea name="description" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl h-48 focus:border-blue-500 outline-none resize-none" required><%= idea.description %></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Update Images (Note: Uploading new images will replace old ones)</label>
+                    <input type="file" name="ideaImages" multiple accept="image/*" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl text-sm file:bg-blue-600 file:border-0 file:rounded-full file:px-4 file:py-1 file:text-white file:font-bold">
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition">Update Post</button>
+                    <a href="/post/<%= idea._id %>" class="px-8 py-4 rounded-xl font-bold text-slate-500 hover:text-white transition">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

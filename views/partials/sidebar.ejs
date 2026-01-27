@@ -1,0 +1,59 @@
+<% 
+   // Dynamic Active State Helper
+   const isActive = (cat) => (typeof currentCategory !== 'undefined' && currentCategory === cat) ? 
+   `${theme.lightBg} ${theme.textLight} border-l-4 ${theme.border}` : 
+   'text-slate-400 hover:bg-slate-800 border-l-4 border-transparent';
+%>
+
+<aside class="w-64 border-r border-slate-800 flex flex-col fixed h-full bg-[#0F172A] z-40">
+    <div class="p-6 text-2xl font-bold tracking-tighter <%= theme.text %> italic">IDEATE</div>
+    
+    <nav class="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
+        <a href="/?category=All" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('All') %>">
+            <span>🏠</span> <span class="font-medium">Home</span>
+        </a>
+        <a href="/?category=Startup" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Startup') %>">
+            <span>🚀</span> <span>Startup</span>
+        </a>
+        <a href="/?category=Tech" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Tech') %>">
+            <span>💻</span> <span>Tech Upgrade</span>
+        </a>
+        <a href="/?category=Social" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Social') %>">
+            <span>🌍</span> <span>Social Impact</span>
+        </a>
+
+        <div class="pt-4 mt-4 border-t border-slate-800">
+            <p class="px-3 text-xs font-bold text-slate-600 uppercase mb-2">My Library</p>
+            <a href="/bookmarks" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Bookmarks') %>">
+                <span>⭐</span> <span>Bookmarks</span>
+            </a>
+            <a href="/activity" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Activity') %>">
+                <span>🕒</span> <span>My Activity</span>
+            </a>
+            <a href="/analytics" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Analytics') %>">
+                <span>📊</span> <span>Analytics</span>
+            </a>
+            <a href="/settings" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Settings') %>">
+                <span>🛠</span> <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="p-4 border-t border-slate-800">
+        <% if (user) { %>
+            <a href="/profile" class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded-xl transition">
+                <img src="<%= user.image %>" class="w-9 h-9 rounded-full border <%= theme.border %>/50 object-cover">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-200 w-32 truncate"><%= user.displayName %></span>
+                    <span class="text-[10px] <%= theme.text %> font-bold uppercase">View Profile</span>
+                </div>
+            </a>
+            <a href="/logout" class="block text-center text-[10px] font-bold text-red-500 mt-2 hover:text-red-400 transition">LOGOUT</a>
+        <% } else { %>
+            <div class="grid grid-cols-2 gap-2">
+                <a href="/login" class="text-center py-2 bg-slate-800 rounded-lg font-bold text-xs hover:bg-slate-700 transition">Sign In</a>
+                <a href="/signup" class="text-center py-2 <%= theme.bg %> rounded-lg font-bold text-xs hover:<%= theme.bgHover %> transition">Sign Up</a>
+            </div>
+        <% } %>
+    </div>
+</aside>

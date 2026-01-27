@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 flex min-h-screen">
+    <%- include('../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-12">
+        <div class="max-w-2xl mx-auto bg-[#11161D] border border-slate-800 p-10 rounded-3xl shadow-2xl">
+            
+            <form action="/profile/update" method="POST" enctype="multipart/form-data" class="space-y-6">
+                
+                <div class="flex items-center space-x-6 mb-10">
+                    <div class="relative group">
+                        <img src="<%= user.image %>" class="w-24 h-24 rounded-full border-4 border-blue-500/30 object-cover" id="preview">
+                        
+                        <input type="file" name="profileImage" id="fileInput" class="hidden" accept="image/*" onchange="previewImage(event)">
+                        
+                        <label for="fileInput" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            <span class="text-[10px] font-bold">CHANGE</span>
+                        </label>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white"><%= user.displayName %></h1>
+                        <p class="text-slate-500 text-sm">Update your public profile</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Display Name</label>
+                    <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Bio</label>
+                    <textarea name="bio" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl h-32 focus:border-blue-500 outline-none"><%= user.bio %></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg">Save Changes</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){ document.getElementById('preview').src = reader.result; };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
