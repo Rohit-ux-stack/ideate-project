@@ -1,59 +1,119 @@
-<% 
-   // Dynamic Active State Helper
-   const isActive = (cat) => (typeof currentCategory !== 'undefined' && currentCategory === cat) ? 
-   `${theme.lightBg} ${theme.textLight} border-l-4 ${theme.border}` : 
-   'text-slate-400 hover:bg-slate-800 border-l-4 border-transparent';
-%>
+<aside class="fixed top-0 left-0 w-64 h-full bg-[#0F172A] border-r border-slate-800 flex flex-col z-50">
+    <div class="h-20 flex items-center px-8 border-b border-slate-800 shrink-0">
+        <h1 class="text-2xl font-bold italic text-blue-500 tracking-wider">IDEATE</h1>
+    </div>
 
-<aside class="w-64 border-r border-slate-800 flex flex-col fixed h-full bg-[#0F172A] z-40">
-    <div class="p-6 text-2xl font-bold tracking-tighter <%= theme.text %> italic">IDEATE</div>
-    
-    <nav class="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
-        <a href="/?category=All" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('All') %>">
-            <span>🏠</span> <span class="font-medium">Home</span>
+    <nav class="flex-1 overflow-y-auto py-6 space-y-1 px-3 custom-scrollbar">
+        <a href="/?feed=home" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= (typeof currentFeed !== 'undefined' && currentFeed === 'home') ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white' %>">
+            <i class="ri-home-4-fill text-xl"></i> <span class="font-medium">My Feed</span>
         </a>
-        <a href="/?category=Startup" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Startup') %>">
-            <span>🚀</span> <span>Startup</span>
-        </a>
-        <a href="/?category=Tech" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Tech') %>">
-            <span>💻</span> <span>Tech Upgrade</span>
-        </a>
-        <a href="/?category=Social" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Social') %>">
-            <span>🌍</span> <span>Social Impact</span>
+        <a href="/?feed=explore" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= (typeof currentFeed !== 'undefined' && currentFeed === 'explore') ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white' %>">
+            <i class="ri-compass-3-line text-xl"></i> <span class="font-medium">Explore Random</span>
         </a>
 
-        <div class="pt-4 mt-4 border-t border-slate-800">
-            <p class="px-3 text-xs font-bold text-slate-600 uppercase mb-2">My Library</p>
-            <a href="/bookmarks" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Bookmarks') %>">
-                <span>⭐</span> <span>Bookmarks</span>
+        <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Topics</div>
+        <a href="/?category=Startup" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-rocket-line text-xl"></i> <span>Startup</span></a>
+        <a href="/?category=Tech" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-computer-line text-xl"></i> <span>Tech Upgrade</span></a>
+        <a href="/?category=Social" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-shake-hands-line text-xl"></i> <span>Social Impact</span></a>
+        
+        <% if (user) { %>
+            <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">My Library</div>
+            <a href="/bookmarks" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-bookmark-3-line text-xl"></i> <span>Bookmarks</span></a>
+            <a href="/activity" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-history-line text-xl"></i> <span>My Activity</span></a>
+            <a href="/analytics" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-bar-chart-line text-xl"></i> <span>Analytics</span></a>
+            <a href="/notifications" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all relative">
+                <i class="ri-notification-3-line text-xl"></i> <span>Notifications</span>
+                <% if(user.notifications && user.notifications.some(n => !n.read)) { %>
+                    <span class="w-2 h-2 bg-red-500 rounded-full absolute left-9 top-4 border-2 border-[#0F172A]"></span>
+                <% } %>
             </a>
-            <a href="/activity" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Activity') %>">
-                <span>🕒</span> <span>My Activity</span>
-            </a>
-            <a href="/analytics" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Analytics') %>">
-                <span>📊</span> <span>Analytics</span>
-            </a>
-            <a href="/settings" class="flex items-center space-x-3 p-3 rounded-r-lg transition <%= isActive('Settings') %>">
-                <span>🛠</span> <span>Settings</span>
-            </a>
-        </div>
+        <% } %>
     </nav>
 
-    <div class="p-4 border-t border-slate-800">
-        <% if (user) { %>
-            <a href="/profile" class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded-xl transition">
-                <img src="<%= user.image %>" class="w-9 h-9 rounded-full border <%= theme.border %>/50 object-cover">
-                <div class="flex flex-col">
-                    <span class="text-sm font-bold text-slate-200 w-32 truncate"><%= user.displayName %></span>
-                    <span class="text-[10px] <%= theme.text %> font-bold uppercase">View Profile</span>
-                </div>
+    <% if (user) { %>
+        <div class="p-4 border-t border-slate-800 bg-[#0F172A] shrink-0">
+            <a href="/user/<%= user._id %>" class="flex items-center space-x-3 group p-2 rounded-xl hover:bg-slate-800/50 transition">
+                 <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border-2 border-slate-700 group-hover:border-blue-500 transition"><%= user.displayName.charAt(0) %></div>
+                 <div class="overflow-hidden">
+                     <p class="text-sm font-bold text-white group-hover:text-blue-400 transition truncate"><%= user.displayName %></p>
+                     <p class="text-xs text-slate-500">View Profile</p>
+                 </div>
             </a>
-            <a href="/logout" class="block text-center text-[10px] font-bold text-red-500 mt-2 hover:text-red-400 transition">LOGOUT</a>
-        <% } else { %>
-            <div class="grid grid-cols-2 gap-2">
-                <a href="/login" class="text-center py-2 bg-slate-800 rounded-lg font-bold text-xs hover:bg-slate-700 transition">Sign In</a>
-                <a href="/signup" class="text-center py-2 <%= theme.bg %> rounded-lg font-bold text-xs hover:<%= theme.bgHover %> transition">Sign Up</a>
-            </div>
-        <% } %>
-    </div>
+            <a href="/logout" class="block mt-2 text-center text-xs text-red-400 font-bold hover:text-red-300 py-2"><i class="ri-logout-box-line"></i> LOGOUT</a>
+        </div>
+    <% } %>
 </aside>
+
+<script>
+    // 1. Live Notification Poller
+    async function checkNotifications() {
+        try {
+            const res = await fetch('/api/notifications/check');
+            const data = await res.json();
+            const navLink = document.querySelector('a[href="/notifications"]');
+            if(navLink) {
+                let dot = navLink.querySelector('span.bg-red-500');
+                if (data.count > 0) {
+                    if (!dot) {
+                        dot = document.createElement('span');
+                        dot.className = 'w-2 h-2 bg-red-500 rounded-full absolute left-9 top-4 border-2 border-[#0F172A]';
+                        navLink.appendChild(dot);
+                    }
+                } else {
+                    if (dot) dot.remove();
+                }
+            }
+        } catch(e) {}
+    }
+    setInterval(checkNotifications, 10000);
+
+    // 2. Global Follow Script (FIXED)
+    window.toggleFollow = async function(btn, userId) {
+        // Prevent Navigation
+        if(window.event) {
+            window.event.preventDefault();
+            window.event.stopPropagation();
+        }
+        
+        try {
+            const res = await fetch(`/follow/${userId}`);
+            const data = await res.json();
+            
+            if(data.success) {
+                // Determine text element
+                const span = btn.querySelector('span') || btn; 
+                const icon = btn.querySelector('i');
+
+                // Toggle Classes
+                if(data.isFollowing) {
+                    // Changing to Unfollow State
+                    if(span !== btn) span.innerText = 'Unfollow'; 
+                    else if(btn.innerText.trim().toLowerCase() !== '') btn.innerText = 'Unfollow';
+                    else btn.innerHTML = '<i class="ri-user-unfollow-line"></i>'; // Icon only case
+
+                    if(icon) icon.className = 'ri-user-unfollow-line';
+                    
+                    btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-500');
+                    btn.classList.add('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+                } else {
+                    // Changing to Follow State
+                    if(span !== btn) span.innerText = 'Follow'; 
+                    else if(btn.innerText.trim().toLowerCase() !== '') btn.innerText = 'Follow';
+                    else btn.innerHTML = '<i class="ri-user-add-line"></i>'; // Icon only case
+
+                    if(icon) icon.className = 'ri-user-add-line';
+
+                    btn.classList.remove('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+                    btn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
+                }
+                
+                // Update Follower Count if on Profile Page
+                const countSpan = document.getElementById('followerCount');
+                if(countSpan) countSpan.innerText = data.newCount;
+
+            } else if(data.error === "Login required") {
+                window.location.href = "/login";
+            }
+        } catch(err) { console.error("Follow Error", err); }
+    }
+</script>

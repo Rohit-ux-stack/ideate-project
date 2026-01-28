@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    <%- include('../partials/sidebar') %>
+    <main class="ml-64 flex-1 p-8">
+        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
+            <i class="ri-notification-3-fill text-blue-500"></i> Notifications
+        </h2>
+
+        <div class="max-w-3xl space-y-4">
+            <% if (notifications && notifications.length > 0) { %>
+                <% notifications.forEach(notif => { %>
+                    <div onclick="markRead(this, '<%= notif._id %>', '<%= notif.link %>')" 
+                         class="cursor-pointer block border p-4 rounded-xl transition flex items-center gap-4 relative
+                         <%= notif.read ? 'bg-slate-900 border-slate-800' : 'bg-blue-900/10 border-blue-500/30' %>">
+                        
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0
+                            <%= notif.type === 'raise' ? 'bg-green-500/10 text-green-500' : 
+                               notif.type === 'follow' ? 'bg-blue-500/10 text-blue-500' : 
+                               'bg-yellow-500/10 text-yellow-500' %>">
+                            <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
+                                         notif.type === 'follow' ? 'ri-user-add-fill' : 
+                                         notif.type === 'mention' ? 'ri-at-line' :
+                                         'ri-chat-3-fill' %>"></i>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <p class="text-sm text-slate-300">
+                                <span class="font-bold text-white"><%= notif.latestSenderName %></span> 
+                                <%= notif.message %>
+                            </p>
+                            <span class="text-xs text-slate-600"><%= notif.updatedAt.toLocaleDateString() %></span>
+                        </div>
+
+                        <% if (notif.type === 'follow' && notif.senders.length === 1) { %>
+                            <% const senderId = notif.senders[0]._id; %>
+                            <% if(!user.following.includes(senderId)) { %>
+                                <button onclick="event.stopPropagation(); toggleFollow(this, '<%= senderId %>')" 
+                                    class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg">
+                                    Follow Back
+                                </button>
+                            <% } %>
+                        <% } %>
+
+                        <% if (!notif.read) { %>
+                            <span class="w-2 h-2 bg-blue-500 rounded-full absolute top-4 right-4"></span>
+                        <% } %>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="text-center py-20 text-slate-500">
+                    <i class="ri-notification-off-line text-4xl mb-2 block"></i>
+                    No notifications yet.
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <script>
+        async function markRead(el, id, link) {
+            // Optimistic Update
+            el.classList.remove('bg-blue-900/10', 'border-blue-500/30');
+            el.classList.add('bg-slate-900', 'border-slate-800');
+            const dot = el.querySelector('.absolute');
+            if(dot) dot.remove();
+
+            // API Call
+            await fetch(`/api/notifications/read/${id}`, { method: 'POST' });
+
+            // Navigate
+            if(link) window.location.href = link;
+        }
+    </script>
+</body>
+</html>

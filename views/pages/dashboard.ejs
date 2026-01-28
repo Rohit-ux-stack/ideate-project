@@ -1,95 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-[#0F172A] text-slate-200 min-h-screen flex">
+
+<style>
+    .search-results-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        margin-top: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 50;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        display: none;
+    }
+    .search-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #334155;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover { background: #334155; }
+</style>
+
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
 
     <%- include('../partials/sidebar') %>
 
     <main class="ml-64 flex-1">
-        <header class="h-20 border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 bg-[#0F172A]/80 backdrop-blur-md z-30">
-            <div class="w-1/3">
-                <input type="text" id="searchInput" onkeyup="filterIdeas()" placeholder="Search..." 
-                       class="w-full bg-slate-900 border border-slate-700 rounded-full py-2 px-6 focus:outline-none focus:border-blue-500 text-sm">
+        <header class="h-20 border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-30">
+            
+            <div class="w-1/3 relative group">
+                <i class="ri-search-line absolute left-4 top-3 text-slate-500 group-focus-within:text-blue-500 transition"></i>
+                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search ideas or users..." 
+                       class="w-full bg-slate-900 border border-slate-700 rounded-full py-2.5 pl-12 pr-6 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all text-white placeholder-slate-500" autocomplete="off">
+                
+                <div id="userSearchResults" class="search-results-dropdown"></div>
             </div>
 
             <% if (user) { %>
                 <button onclick="document.getElementById('postModal').classList.replace('hidden', 'flex')" 
-                        class="<%= theme.bg %> <%= theme.bgHover %> text-white px-6 py-2 rounded-full font-bold shadow-lg transition">
-                    + Post Idea
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+                    <i class="ri-add-line text-xl"></i>
+                    <span>Post Idea</span>
                 </button>
+            <% } else { %>
+                <div class="flex items-center gap-4">
+                    <a href="/login" class="text-slate-400 hover:text-white font-bold text-sm px-4 py-2 hover:bg-slate-800 rounded-full transition">Login</a>
+                    <a href="/signup" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition">Sign Up</a>
+                </div>
             <% } %>
         </header>
 
         <div class="p-8">
-            <div class="flex justify-between items-end mb-6">
-                <h2 class="text-2xl font-bold">
-                    <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Trending Innovations' %>
-                </h2>
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">
+                        <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Trending Innovations' %>
+                    </h2>
+                    <p class="text-slate-500">Discover and support the next big thing.</p>
+                </div>
             </div>
             
             <div id="ideaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <% ideas.forEach(idea => { %>
-                    <div class="idea-card bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/40 transition group relative"
-                         data-search="<%= idea.title.toLowerCase() %>">
+                    <div class="idea-card bg-slate-900/50 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/30 hover:bg-slate-900 transition-all group relative flex flex-col h-full"
+                         data-search="<%= idea.title.toLowerCase() %> <%= idea.description.toLowerCase() %> <%= idea.author.toLowerCase() %> <%= idea.category.toLowerCase() %>">
 
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="px-3 py-1 <%= theme.lightBg %> <%= theme.textLight %> text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                <%= idea.category %>
-                            </span>
-
-                            <a href="/post/<%= idea._id %>/bookmark" class="text-slate-600 hover:text-yellow-400 transition">
-                                ★
-                            </a>
-                        </div>
-
-                        <div onclick="window.location.href='/post/<%= idea._id %>'" class="cursor-pointer">
-
+                        <div onclick="window.location.href='/post/<%= idea._id %>'" class="cursor-pointer flex-1">
                             <% if(idea.images && idea.images.length > 0) { %>
-                                <div class="w-full h-40 rounded-xl overflow-hidden mb-4 border border-slate-800">
-                                    <img src="<%= idea.images[0].src %>" class="w-full h-full object-cover">
+                                <div class="w-full h-48 rounded-xl overflow-hidden mb-5 border border-slate-800/50 relative">
+                                    <img src="<%= idea.images[0].src %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 </div>
                             <% } %>
 
-                            <h3 class="text-lg font-bold group-hover:text-blue-400 transition mb-2">
-                                <%= idea.title %>
-                            </h3>
-
-                            <p class="text-slate-400 text-sm mb-4 line-clamp-2">
-                                <%= idea.description %>
-                            </p>
-                        </div>
-                        
-                        <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-800">
-                            <div class="flex items-center space-x-4">
-                                <a href="/post/<%= idea._id %>/raise" class="flex items-center space-x-1 text-slate-400 hover:text-green-400 transition">
-                                    <span>▲</span>
-                                    <span class="text-sm"><%= (idea.upvotes || []).length %></span>
-                                </a>
-                                <a href="/post/<%= idea._id %>" class="flex items-center space-x-1 text-slate-400 hover:text-blue-400 transition">
-                                    <span>💬</span>
-                                    <span class="text-sm"><%= (idea.comments || []).length %></span>
-                                </a>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2" onclick="event.stopPropagation(); window.location.href='/user/<%= idea.authorId %>'">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden border border-slate-600 cursor-pointer hover:border-blue-500">
+                                        <%= idea.author.charAt(0) %>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-slate-300 hover:text-blue-400 transition cursor-pointer"><%= idea.author %></span>
+                                        
+                                        <% if (user && user._id.toString() !== idea.authorId.toString()) { %>
+                                            <button type="button" 
+                                                onclick="dashboardToggleFollow(event, this, '<%= idea.authorId %>')" 
+                                                class="text-[10px] font-bold mt-0.5 text-left w-fit transition outline-none z-20 relative <%= user.following.some(id => id.toString() === idea.authorId.toString()) ? 'text-slate-500 hover:text-slate-400' : 'text-blue-500 hover:text-blue-400' %>">
+                                                <%= user.following.some(id => id.toString() === idea.authorId.toString()) ? 'Unfollow' : 'Follow' %>
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold tracking-wider text-blue-400 bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20 uppercase"><%= idea.category %></span>
                             </div>
 
-                            <span class="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/10 uppercase">
-                                <%= idea.status %>
-                            </span>
+                            <h3 class="text-xl font-bold text-slate-100 group-hover:text-blue-400 transition mb-3 leading-tight"><%= idea.title %></h3>
+                            <p class="text-slate-400 text-sm mb-4 line-clamp-3 leading-relaxed"><%= idea.description %></p>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-800 mt-auto">
+                            <div class="flex items-center space-x-4">
+                                <a href="/post/<%= idea._id %>/raise" class="flex items-center space-x-1.5 text-slate-400 hover:text-green-400 transition group/vote">
+                                    <i class="ri-arrow-up-circle-line text-xl group-hover/vote:text-green-400"></i>
+                                    <span class="font-mono font-bold"><%= (idea.upvotes || []).length %></span>
+                                </a>
+                                <a href="/post/<%= idea._id %>" class="flex items-center space-x-1.5 text-slate-400 hover:text-blue-400 transition">
+                                    <i class="ri-chat-3-line text-lg"></i>
+                                    <span class="font-mono font-bold"><%= (idea.comments || []).length %></span>
+                                </a>
+                                <div class="flex items-center space-x-1.5 text-slate-500">
+                                    <i class="ri-eye-line text-lg"></i>
+                                    <span class="font-mono text-xs"><%= idea.views %></span>
+                                </div>
+                            </div>
+
+                            <a href="/post/<%= idea._id %>/bookmark" class="transition-transform active:scale-90 p-2 -mr-2">
+                                <% if (user && user.bookmarks && user.bookmarks.some(b => b.toString() === idea._id.toString() || (b._id && b._id.toString() === idea._id.toString()))) { %>
+                                    <i class="ri-star-fill text-2xl text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]"></i>
+                                <% } else { %>
+                                    <i class="ri-star-line text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></i>
+                                <% } %>
+                            </a>
                         </div>
                     </div>
                 <% }) %>
             </div>
+            
+            <% if (ideas.length === 0) { %>
+                <div class="text-center py-20">
+                    <div class="bg-slate-800/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><i class="ri-lightbulb-flash-line text-4xl text-slate-500"></i></div>
+                    <h3 class="text-xl font-bold text-slate-400">No ideas found here yet.</h3>
+                </div>
+            <% } %>
         </div>
     </main>
 
     <%- include('../partials/postModal') %>
 
     <script>
-        function filterIdeas() {
-            const val = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('.idea-card').forEach(card => {
-                card.style.display = card.getAttribute('data-search').includes(val) ? "block" : "none";
-            });
+        // 1. FOLLOW LOGIC (Directly embedded to prevent scope issues)
+        async function dashboardToggleFollow(event, btn, userId) {
+            // STOP propagation immediately to prevent card click or link navigation
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                const res = await fetch(`/follow/${userId}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if(data.success) {
+                    if(data.isFollowing) {
+                        // Unfollow State
+                        btn.innerText = 'Unfollow';
+                        btn.className = 'text-[10px] font-bold mt-0.5 text-left w-fit transition outline-none z-20 relative text-slate-500 hover:text-slate-400';
+                    } else {
+                        // Follow State
+                        btn.innerText = 'Follow';
+                        btn.className = 'text-[10px] font-bold mt-0.5 text-left w-fit transition outline-none z-20 relative text-blue-500 hover:text-blue-400';
+                    }
+                } else if(data.error === "Login required") {
+                    window.location.href = "/login";
+                }
+            } catch(err) {
+                console.error("Follow error:", err);
+            }
         }
+
+        // 2. SEARCH LOGIC
+        let searchTimeout;
+        function handleSearch() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.idea-card');
+            const dropdown = document.getElementById('userSearchResults');
+
+            // Filter Posts locally
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search');
+                card.style.display = searchData.includes(filter) ? "" : "none";
+            });
+
+            // Search Users via API
+            clearTimeout(searchTimeout);
+            if(filter.length > 1) {
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`/api/users/search?q=${filter}`);
+                        const users = await res.json();
+                        
+                        if(users.length > 0) {
+                            dropdown.innerHTML = users.map(u => `
+                                <div class="search-item flex items-center gap-3" onclick="window.location.href='/user/${u._id}'">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">
+                                        ${u.displayName.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-200 hover:text-blue-400">${u.displayName}</p>
+                                        <p class="text-[10px] text-slate-500">User</p>
+                                    </div>
+                                </div>
+                            `).join('');
+                            dropdown.style.display = 'block';
+                        } else {
+                            dropdown.style.display = 'none';
+                        }
+                    } catch(e) { dropdown.style.display = 'none'; }
+                }, 300);
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userSearchResults');
+            const input = document.getElementById('searchInput');
+            if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

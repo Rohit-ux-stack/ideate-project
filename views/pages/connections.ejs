@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    <%- include('../partials/sidebar') %>
+    <main class="ml-64 flex-1 p-8">
+        <div class="max-w-3xl mx-auto">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="history.back()" class="text-slate-400 hover:text-white"><i class="ri-arrow-left-line text-xl"></i></button>
+                <h2 class="text-2xl font-bold capitalize"><%= type %></h2>
+            </div>
+
+            <div class="space-y-4">
+                <% if (list && list.length > 0) { %>
+                    <% list.forEach(person => { %>
+                        <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <a href="/user/<%= person._id %>" class="flex items-center gap-3">
+                                <% if(person.image) { %>
+                                    <img src="<%= person.image %>" class="w-10 h-10 rounded-full object-cover">
+                                <% } else { %>
+                                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
+                                        <%= person.displayName.charAt(0) %>
+                                    </div>
+                                <% } %>
+                                <span class="font-bold text-white hover:text-blue-400 transition"><%= person.displayName %></span>
+                            </a>
+                            
+                            <% if (user && user._id.toString() !== person._id.toString()) { %>
+                                <% 
+                                   // Force String Conversion for safe comparison
+                                   const followingList = user.following.map(id => id.toString());
+                                   const followersList = user.followers.map(id => id.toString());
+                                   const targetId = person._id.toString();
+
+                                   const isFollowing = followingList.includes(targetId);
+                                   const isFollower = followersList.includes(targetId);
+                                   
+                                   let btnText = "Follow";
+                                   let btnClass = "bg-blue-600 text-white hover:bg-blue-500";
+                                   let iconClass = "ri-user-add-line";
+
+                                   if (isFollowing) {
+                                       btnText = "Unfollow";
+                                       btnClass = "bg-slate-700 text-slate-300 hover:bg-slate-600";
+                                       iconClass = "ri-user-unfollow-line";
+                                   } else if (isFollower) {
+                                       btnText = "Follow Back";
+                                       btnClass = "bg-blue-600 text-white hover:bg-blue-500";
+                                   }
+                                %>
+
+                                <button type="button" onclick="listToggleFollow(this, '<%= person._id %>')" 
+                                    class="text-xs px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 shadow-lg <%= btnClass %>">
+                                    <i class="<%= iconClass %>"></i>
+                                    <span><%= btnText %></span>
+                                </button>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="text-center py-20 text-slate-500">No users found.</div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function listToggleFollow(btn, userId) {
+            try {
+                const res = await fetch(`/follow/${userId}`);
+                const data = await res.json();
+                
+                if(data.success) {
+                    const span = btn.querySelector('span');
+                    const icon = btn.querySelector('i');
+
+                    if(data.isFollowing) {
+                        span.innerText = 'Unfollow';
+                        icon.className = 'ri-user-unfollow-line';
+                        btn.className = 'text-xs px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 shadow-lg bg-slate-700 text-slate-300 hover:bg-slate-600';
+                    } else {
+                        span.innerText = 'Follow';
+                        icon.className = 'ri-user-add-line';
+                        btn.className = 'text-xs px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 shadow-lg bg-blue-600 text-white hover:bg-blue-500';
+                    }
+                }
+            } catch(err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>
