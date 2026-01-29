@@ -3,7 +3,7 @@
         <h1 class="text-2xl font-bold italic text-blue-500 tracking-wider">IDEATE</h1>
     </div>
 
-    <nav class="flex-1 overflow-y-auto py-6 space-y-1 px-3 custom-scrollbar">
+    <nav class="flex-1 overflow-y-auto py-6 flex flex-col space-y-1 px-3 custom-scrollbar">
         <a href="/?feed=home" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= (typeof currentFeed !== 'undefined' && currentFeed === 'home') ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white' %>">
             <i class="ri-home-4-fill text-xl"></i> <span class="font-medium">My Feed</span>
         </a>
@@ -16,6 +16,22 @@
         <a href="/?category=Tech" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-computer-line text-xl"></i> <span>Tech Upgrade</span></a>
         <a href="/?category=Social" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-shake-hands-line text-xl"></i> <span>Social Impact</span></a>
         
+        <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Community</div>
+        <a href="/leaderboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-yellow-400 transition-all">
+            <i class="ri-trophy-line text-xl"></i> <span>Hall of Fame</span>
+        </a>
+        <a href="/info/guidelines" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+            <i class="ri-shield-check-line text-xl"></i> <span>Guidelines</span>
+        </a>
+
+        <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Support</div>
+        <a href="/info/how-to-use" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+            <i class="ri-question-line text-xl"></i> <span>How to Use</span>
+        </a>
+        <a href="/info/faq" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+            <i class="ri-chat-1-line text-xl"></i> <span>FAQ</span>
+        </a>
+
         <% if (user) { %>
             <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">My Library</div>
             <a href="/bookmarks" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all"><i class="ri-bookmark-3-line text-xl"></i> <span>Bookmarks</span></a>
@@ -28,12 +44,29 @@
                 <% } %>
             </a>
         <% } %>
+
+        <div class="mt-auto pt-8 px-4 pb-4">
+             <div class="flex flex-wrap gap-x-3 gap-y-2 text-[11px] font-bold text-slate-600">
+                <a href="/info/about" class="hover:text-slate-400 transition">About</a>
+                <a href="/info/contact" class="hover:text-slate-400 transition">Contact</a>
+                <a href="/info/privacy" class="hover:text-slate-400 transition">Privacy</a>
+                <a href="/info/terms" class="hover:text-slate-400 transition">Terms</a>
+            </div>
+            <div class="text-[10px] text-slate-700 mt-2 font-mono">© 2026 Ideate Inc.</div>
+        </div>
     </nav>
 
     <% if (user) { %>
         <div class="p-4 border-t border-slate-800 bg-[#0F172A] shrink-0">
             <a href="/user/<%= user._id %>" class="flex items-center space-x-3 group p-2 rounded-xl hover:bg-slate-800/50 transition">
-                 <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border-2 border-slate-700 group-hover:border-blue-500 transition"><%= user.displayName.charAt(0) %></div>
+                 <% if (user.image) { %>
+                     <img src="<%= user.image %>" class="w-10 h-10 rounded-full object-cover border-2 border-slate-700 group-hover:border-blue-500 transition">
+                 <% } else { %>
+                     <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border-2 border-slate-700 group-hover:border-blue-500 transition">
+                         <%= user.displayName.charAt(0) %>
+                     </div>
+                 <% } %>
+                 
                  <div class="overflow-hidden">
                      <p class="text-sm font-bold text-white group-hover:text-blue-400 transition truncate"><%= user.displayName %></p>
                      <p class="text-xs text-slate-500">View Profile</p>
@@ -45,7 +78,6 @@
 </aside>
 
 <script>
-    // 1. Live Notification Poller
     async function checkNotifications() {
         try {
             const res = await fetch('/api/notifications/check');
@@ -67,53 +99,30 @@
     }
     setInterval(checkNotifications, 10000);
 
-    // 2. Global Follow Script (FIXED)
     window.toggleFollow = async function(btn, userId) {
-        // Prevent Navigation
-        if(window.event) {
-            window.event.preventDefault();
-            window.event.stopPropagation();
-        }
-        
+        if(event) { event.preventDefault(); event.stopPropagation(); }
         try {
             const res = await fetch(`/follow/${userId}`);
             const data = await res.json();
-            
             if(data.success) {
-                // Determine text element
                 const span = btn.querySelector('span') || btn; 
                 const icon = btn.querySelector('i');
-
-                // Toggle Classes
                 if(data.isFollowing) {
-                    // Changing to Unfollow State
-                    if(span !== btn) span.innerText = 'Unfollow'; 
-                    else if(btn.innerText.trim().toLowerCase() !== '') btn.innerText = 'Unfollow';
-                    else btn.innerHTML = '<i class="ri-user-unfollow-line"></i>'; // Icon only case
-
+                    if(span !== btn) span.innerText = 'Unfollow'; else if(btn.innerText.trim() !== '') btn.innerText = 'Unfollow';
                     if(icon) icon.className = 'ri-user-unfollow-line';
-                    
-                    btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-500');
-                    btn.classList.add('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+                    btn.classList.replace('bg-blue-600', 'bg-slate-700');
+                    btn.classList.replace('text-white', 'text-slate-300');
                 } else {
-                    // Changing to Follow State
-                    if(span !== btn) span.innerText = 'Follow'; 
-                    else if(btn.innerText.trim().toLowerCase() !== '') btn.innerText = 'Follow';
-                    else btn.innerHTML = '<i class="ri-user-add-line"></i>'; // Icon only case
-
+                    if(span !== btn) span.innerText = 'Follow'; else if(btn.innerText.trim() !== '') btn.innerText = 'Follow';
                     if(icon) icon.className = 'ri-user-add-line';
-
-                    btn.classList.remove('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
-                    btn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
+                    btn.classList.replace('bg-slate-700', 'bg-blue-600');
+                    btn.classList.replace('text-slate-300', 'text-white');
                 }
-                
-                // Update Follower Count if on Profile Page
                 const countSpan = document.getElementById('followerCount');
                 if(countSpan) countSpan.innerText = data.newCount;
-
             } else if(data.error === "Login required") {
                 window.location.href = "/login";
             }
-        } catch(err) { console.error("Follow Error", err); }
+        } catch(err) {}
     }
 </script>

@@ -39,7 +39,6 @@
                 <i class="ri-search-line absolute left-4 top-3 text-slate-500 group-focus-within:text-blue-500 transition"></i>
                 <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search ideas or users..." 
                        class="w-full bg-slate-900 border border-slate-700 rounded-full py-2.5 pl-12 pr-6 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all text-white placeholder-slate-500" autocomplete="off">
-                
                 <div id="userSearchResults" class="search-results-dropdown"></div>
             </div>
 
@@ -73,6 +72,7 @@
                          data-search="<%= idea.title.toLowerCase() %> <%= idea.description.toLowerCase() %> <%= idea.author.toLowerCase() %> <%= idea.category.toLowerCase() %>">
 
                         <div onclick="window.location.href='/post/<%= idea._id %>'" class="cursor-pointer flex-1">
+                            
                             <% if(idea.images && idea.images.length > 0) { %>
                                 <div class="w-full h-48 rounded-xl overflow-hidden mb-5 border border-slate-800/50 relative">
                                     <img src="<%= idea.images[0].src %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
@@ -81,9 +81,15 @@
 
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-2" onclick="event.stopPropagation(); window.location.href='/user/<%= idea.authorId %>'">
-                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden border border-slate-600 cursor-pointer hover:border-blue-500">
-                                        <%= idea.author.charAt(0) %>
+                                    
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden border border-slate-600 cursor-pointer hover:border-blue-500 shrink-0">
+                                        <% if (idea.authorImage) { %>
+                                            <img src="<%= idea.authorImage %>" class="w-full h-full object-cover">
+                                        <% } else { %>
+                                            <%= idea.author.charAt(0) %>
+                                        <% } %>
                                     </div>
+                                    
                                     <div class="flex flex-col">
                                         <span class="text-xs font-bold text-slate-300 hover:text-blue-400 transition cursor-pointer"><%= idea.author %></span>
                                         
@@ -143,9 +149,9 @@
     <%- include('../partials/postModal') %>
 
     <script>
-        // 1. FOLLOW LOGIC (Directly embedded to prevent scope issues)
+        // 1. FOLLOW LOGIC
         async function dashboardToggleFollow(event, btn, userId) {
-            // STOP propagation immediately to prevent card click or link navigation
+            // STOP propagation immediately to prevent card click
             event.preventDefault();
             event.stopPropagation();
 
@@ -200,9 +206,10 @@
                         if(users.length > 0) {
                             dropdown.innerHTML = users.map(u => `
                                 <div class="search-item flex items-center gap-3" onclick="window.location.href='/user/${u._id}'">
-                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">
-                                        ${u.displayName.charAt(0)}
-                                    </div>
+                                    ${u.image ? 
+                                        `<img src="${u.image}" class="w-8 h-8 rounded-full object-cover border border-slate-600">` : 
+                                        `<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">${u.displayName.charAt(0)}</div>`
+                                    }
                                     <div>
                                         <p class="text-sm font-bold text-slate-200 hover:text-blue-400">${u.displayName}</p>
                                         <p class="text-[10px] text-slate-500">User</p>

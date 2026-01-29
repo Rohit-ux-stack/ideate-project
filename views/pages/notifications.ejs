@@ -15,15 +15,30 @@
                          class="cursor-pointer block border p-4 rounded-xl transition flex items-center gap-4 relative
                          <%= notif.read ? 'bg-slate-900 border-slate-800' : 'bg-blue-900/10 border-blue-500/30' %>">
                         
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0
-                            <%= notif.type === 'raise' ? 'bg-green-500/10 text-green-500' : 
-                               notif.type === 'follow' ? 'bg-blue-500/10 text-blue-500' : 
-                               'bg-yellow-500/10 text-yellow-500' %>">
-                            <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
-                                         notif.type === 'follow' ? 'ri-user-add-fill' : 
-                                         notif.type === 'mention' ? 'ri-at-line' :
-                                         'ri-chat-3-fill' %>"></i>
-                        </div>
+                        <% if (notif.senders && notif.senders.length > 0 && notif.senders[0].image) { %>
+                            <div class="relative w-12 h-12 shrink-0">
+                                <img src="<%= notif.senders[0].image %>" class="w-12 h-12 rounded-full object-cover border border-slate-700">
+                                <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] border border-[#0F172A]
+                                    <%= notif.type === 'raise' ? 'bg-green-500 text-white' : 
+                                       notif.type === 'follow' ? 'bg-blue-500 text-white' : 
+                                       'bg-yellow-500 text-white' %>">
+                                    <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
+                                                 notif.type === 'follow' ? 'ri-user-add-fill' : 
+                                                 notif.type === 'mention' ? 'ri-at-line' :
+                                                 'ri-chat-3-fill' %>"></i>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0
+                                <%= notif.type === 'raise' ? 'bg-green-500/10 text-green-500' : 
+                                   notif.type === 'follow' ? 'bg-blue-500/10 text-blue-500' : 
+                                   'bg-yellow-500/10 text-yellow-500' %>">
+                                <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
+                                             notif.type === 'follow' ? 'ri-user-add-fill' : 
+                                             notif.type === 'mention' ? 'ri-at-line' :
+                                             'ri-chat-3-fill' %>"></i>
+                            </div>
+                        <% } %>
                         
                         <div class="flex-1">
                             <p class="text-sm text-slate-300">
@@ -59,16 +74,11 @@
 
     <script>
         async function markRead(el, id, link) {
-            // Optimistic Update
             el.classList.remove('bg-blue-900/10', 'border-blue-500/30');
             el.classList.add('bg-slate-900', 'border-slate-800');
-            const dot = el.querySelector('.absolute');
+            const dot = el.querySelector('.absolute.right-4');
             if(dot) dot.remove();
-
-            // API Call
             await fetch(`/api/notifications/read/${id}`, { method: 'POST' });
-
-            // Navigate
             if(link) window.location.href = link;
         }
     </script>

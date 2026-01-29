@@ -35,25 +35,38 @@
             <% if (ideas && ideas.length > 0) { %>
                 <% ideas.forEach(idea => { %>
                     <div onclick="window.location.href='/post/<%= idea._id %>'" 
-                         class="group bg-slate-900/30 border border-slate-800 hover:border-blue-500/30 hover:bg-slate-900 p-5 rounded-xl flex items-center justify-between transition cursor-pointer">
+                         class="group bg-slate-900/30 border border-slate-800 hover:border-blue-500/30 hover:bg-slate-900 p-4 rounded-xl flex items-center gap-5 transition cursor-pointer">
                         
-                        <div>
-                            <h4 class="text-lg font-bold text-slate-200 group-hover:text-blue-400 transition"><%= idea.title %></h4>
+                        <div class="w-16 h-16 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden border border-slate-700 relative">
+                            <% if (idea.images && idea.images.length > 0) { %>
+                                <img src="<%= idea.images[0].src %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <% } else { %>
+                                <i class="ri-lightbulb-flash-line text-2xl text-slate-600"></i>
+                            <% } %>
+                        </div>
+
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-slate-200 group-hover:text-blue-400 transition line-clamp-1"><%= idea.title %></h4>
                             <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                                <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded"><%= idea.category %></span>
+                                <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded uppercase font-bold tracking-wide border border-slate-700"><%= idea.category %></span>
                                 <span>• <%= idea.createdAt.toLocaleDateString() %></span>
                             </div>
                         </div>
 
-                        <div class="text-right">
-                            <div class="text-xl font-bold text-blue-500"><%= idea.views %> <span class="text-sm text-slate-500 font-normal">Views</span></div>
-                            <div class="text-xs text-slate-500"><%= idea.upvotes.length %> Upvotes</div>
+                        <div class="text-right flex flex-col items-end gap-2 min-w-[80px]">
+                            <div class="text-sm font-bold text-blue-400 flex items-center gap-1.5 bg-blue-500/10 px-2 py-1 rounded">
+                                <i class="ri-eye-line"></i> <%= idea.views %>
+                            </div>
+                            <div class="text-xs font-bold text-green-500 flex items-center gap-1">
+                                <i class="ri-arrow-up-circle-line"></i> <%= idea.upvotes.length %> Upvotes
+                            </div>
                         </div>
                     </div>
                 <% }) %>
             <% } else { %>
-                <div class="text-center py-10 text-slate-500 bg-slate-900/20 rounded-xl border border-slate-800 border-dashed">
-                    No activity data available yet.
+                <div class="text-center py-16 text-slate-500 bg-slate-900/20 rounded-xl border border-slate-800 border-dashed">
+                    <i class="ri-bar-chart-box-line text-4xl mb-3 block opacity-40"></i>
+                    <p>No activity data available yet.</p>
                 </div>
             <% } %>
         </div>

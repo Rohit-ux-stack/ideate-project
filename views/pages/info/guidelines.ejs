@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    <%- include('../../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-12 max-w-6xl mx-auto">
+        
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 mb-6">Community Guidelines</h1>
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+                Ideate is built on trust, respect, and collaboration. These guidelines ensure our platform remains a safe harbor for innovation.
+            </p>
+        </div>
+
+        <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 p-10 rounded-3xl mb-16 flex items-start gap-6">
+            <i class="ri-vip-diamond-line text-5xl text-emerald-400 shrink-0"></i>
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">The Golden Rule</h2>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    Treat every idea with the respect you would want for your own. Critique the concept, never the creator. We are here to build, not to destroy.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+            
+            <div class="bg-slate-900/50 border border-green-500/20 rounded-3xl p-8">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                    <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 text-xl"><i class="ri-check-double-line"></i></div>
+                    <h2 class="text-2xl font-bold text-white">Encouraged Behaviors</h2>
+                </div>
+                <ul class="space-y-6">
+                    <li class="flex gap-4">
+                        <span class="text-green-500 font-bold mt-1">01.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Constructive Feedback</h3>
+                            <p class="text-slate-400 text-sm">Don't just say "it won't work." Explain why and offer a solution. "Have you considered X?" is better than "Bad idea."</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-green-500 font-bold mt-1">02.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Radical Transparency</h3>
+                            <p class="text-slate-400 text-sm">Be honest about your skills and intentions. If you want to collaborate, state your role clearly.</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-green-500 font-bold mt-1">03.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Give Credit</h3>
+                            <p class="text-slate-400 text-sm">Innovation stands on the shoulders of giants. If an idea inspired you, tag the original author.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-900/50 border border-red-500/20 rounded-3xl p-8">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                    <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 text-xl"><i class="ri-prohibited-line"></i></div>
+                    <h2 class="text-2xl font-bold text-white">Strictly Prohibited</h2>
+                </div>
+                <ul class="space-y-6">
+                    <li class="flex gap-4">
+                        <span class="text-red-500 font-bold mt-1">01.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Idea Theft & Plagiarism</h3>
+                            <p class="text-slate-400 text-sm">Copying a detailed concept and reposting it as your own without significant modification or credit is a bannable offense.</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-red-500 font-bold mt-1">02.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Hate Speech & Harassment</h3>
+                            <p class="text-slate-400 text-sm">We have zero tolerance for racism, sexism, homophobia, or bullying. Psychological safety is non-negotiable.</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-red-500 font-bold mt-1">03.</span>
+                        <div>
+                            <h3 class="text-white font-bold text-sm mb-1">Spam & Self-Promotion</h3>
+                            <p class="text-slate-400 text-sm">Do not use comments to sell products, crypto scams, or affiliate links unrelated to the discussion.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-3xl p-10 border border-slate-800 mb-16">
+            <h2 class="text-2xl font-bold text-white mb-6">How We Enforce</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+                <div>
+                    <h3 class="text-white font-bold mb-2">1. Warning</h3>
+                    <p class="text-slate-400">Minor infractions (like spamming) result in a formal warning and content removal.</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-2">2. Suspension</h3>
+                    <p class="text-slate-400">Repeated violations or harassment result in a temporary account suspension (7-30 days).</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-2">3. Permanent Ban</h3>
+                    <p class="text-slate-400">Severe violations (hate speech, fraud) result in an immediate, irreversible ban.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center p-8 bg-slate-800/50 rounded-2xl border border-slate-700">
+            <p class="text-slate-400 mb-4">Witnessed a violation? Help us keep Ideate safe.</p>
+            <a href="/info/contact" class="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-full font-bold transition">
+                <i class="ri-flag-line"></i> Report an Issue
+            </a>
+        </div>
+
+    </main>
+</body>
+</html>

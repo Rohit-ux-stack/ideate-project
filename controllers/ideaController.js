@@ -2,22 +2,45 @@ const Idea = require('../models/Idea');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-// --- HELPER FUNCTIONS ---
+// --- HELPER: Process Images & Attach Author Image ---
+// Yeh function Image data ko clean karta hai aur Author PFP ko extract karta hai
+const processIdeasData = (ideas) => {
+    return ideas.map(idea => {
+        let i = idea.toObject ? idea.toObject() : idea;
 
-// 1. Grouped Notifications
+        // 1. Process Post Images (Buffer -> Base64)
+        if (i.images && i.images.length > 0) {
+            i.images = i.images.map(img => {
+                if(img.content && img.type) return { src: `data:${img.type};base64,${img.content.toString('base64')}` };
+                return null;
+            }).filter(img => img !== null);
+        } else { i.images = []; }
+
+        // 2. Extract Author Image safely (The PFP Logic)
+        // Hum check karte hain agar authorId populated hai (object hai) aur usme image hai
+        if (i.authorId && i.authorId.image) {
+            i.authorImage = i.authorId.image; // Image ko top level pe le aao
+            i.authorId = i.authorId._id; // Wapas ID string bana do taaki link kharab na ho
+        } else if (i.authorId && i.authorId._id) {
+             // Agar populate hua par image nahi hai
+             i.authorId = i.authorId._id;
+        }
+
+        return i;
+    });
+};
+
+// --- NOTIFICATION SYSTEM ---
+
 const createNotification = async (targetUserId, type, contextMessage, link, senderId, senderName) => {
     try {
         if (targetUserId.toString() === senderId.toString()) return; 
-
         const user = await User.findById(targetUserId);
         
-        // Find existing unread notification of same type and link
-        const existingNotifIndex = user.notifications.findIndex(n => 
-            n.type === type && n.link === link && !n.read
-        );
+        // Smart Grouping Logic
+        const existingNotifIndex = user.notifications.findIndex(n => n.type === type && n.link === link && !n.read);
 
         if (existingNotifIndex > -1) {
-            // GROUP IT
             const notif = user.notifications[existingNotifIndex];
             if (!notif.senders.includes(senderId)) {
                 notif.senders.push(senderId);
@@ -29,11 +52,9 @@ const createNotification = async (targetUserId, type, contextMessage, link, send
                 else if (count > 2) notif.message = `and ${count - 1} others ${contextMessage}`;
                 else notif.message = contextMessage;
             }
-            // Move to top
             user.notifications.splice(existingNotifIndex, 1);
             user.notifications.unshift(notif);
         } else {
-            // CREATE NEW
             user.notifications.unshift({
                 type,
                 senders: [senderId],
@@ -48,7 +69,6 @@ const createNotification = async (targetUserId, type, contextMessage, link, send
     } catch (err) { console.error("Notification Error:", err); }
 };
 
-// 2. Handle Mentions
 const handleMentions = async (text, ideaId, senderId, senderName) => {
     const mentionRegex = /@(\w+)/g;
     const matches = text.match(mentionRegex);
@@ -61,20 +81,6 @@ const handleMentions = async (text, ideaId, senderId, senderName) => {
             await createNotification(targetUser._id, 'mention', `mentioned you in a comment`, `/post/${ideaId}`, senderId, senderName);
         }
     }
-};
-
-// 3. Process Images
-const processIdeasImages = (ideas) => {
-    return ideas.map(idea => {
-        let i = idea.toObject();
-        if (i.images && i.images.length > 0) {
-            i.images = i.images.map(img => {
-                if(img.content && img.type) return { src: `data:${img.type};base64,${img.content.toString('base64')}` };
-                return null;
-            }).filter(img => img !== null);
-        } else { i.images = []; }
-        return i;
-    });
 };
 
 // --- API HANDLERS ---
@@ -98,14 +104,25 @@ exports.markNotificationRead = async (req, res) => {
 
 exports.searchUsers = async (req, res) => {
     try {
+        // Redirect Logic for Mentions/Comments
+        if (req.query.find) {
+            const targetUser = await User.findOne({ displayName: req.query.find });
+            if (targetUser) return res.redirect(`/user/${targetUser._id}`);
+            return res.redirect(req.get('Referer') || '/');
+        }
+
+        // Dropdown Search Logic
         const search = req.query.q;
         if (!search) return res.json([]);
         const users = await User.find({ displayName: { $regex: search, $options: 'i' } }).select('displayName _id image').limit(5);
         res.json(users);
-    } catch (err) { res.json([]); }
+    } catch (err) { 
+        if (req.query.find) return res.redirect('/');
+        res.json([]); 
+    }
 };
 
-// --- PAGE CONTROLLERS ---
+// --- PAGE CONTROLLERS (UPDATED FOR PFP) ---
 
 exports.getDashboard = async (req, res) => {
     try {
@@ -121,8 +138,13 @@ exports.getDashboard = async (req, res) => {
             followingIds.push(currentUserId);
             query.authorId = { $in: followingIds };
         } 
-        const rawIdeas = await Idea.find(query).sort({ createdAt: -1 });
-        const ideas = processIdeasImages(rawIdeas);
+        
+        // PFP FIX: Populate authorId to get Image
+        const rawIdeas = await Idea.find(query)
+            .sort({ createdAt: -1 })
+            .populate('authorId', 'displayName image'); 
+
+        const ideas = processIdeasData(rawIdeas);
         
         res.render('pages/dashboard', { ideas, user: res.locals.user, currentCategory: category, currentFeed: filterType, pageTitle: filterType === 'explore' ? 'Explore Ideas' : 'My Feed' });
     } catch (err) { res.status(500).send("Error"); }
@@ -132,13 +154,33 @@ exports.getPostById = async (req, res) => {
     try {
         const postId = req.params.id;
         const userId = req.session.userId;
-        if (userId) { await Idea.updateOne({ _id: postId, viewedBy: { $ne: userId } }, { $push: { viewedBy: userId }, $inc: { views: 1 } }); }
-        const idea = await Idea.findById(postId);
+
+        if (userId) { 
+            await Idea.updateOne({ _id: postId, viewedBy: { $ne: userId } }, { $push: { viewedBy: userId }, $inc: { views: 1 } }); 
+        }
+
+        // PFP FIX: Populate Main Author + Comments + Replies
+        const idea = await Idea.findById(postId)
+            .populate('authorId', 'displayName image') // Main Post Author PFP
+            .populate({ path: 'comments.userId', select: 'displayName image' })
+            .populate({ path: 'comments.replies.userId', select: 'displayName image' });
+
         if (!idea) return res.status(404).send("Not Found");
+
+        // Custom processing for single object (Manual PFP extraction)
         let ideaObj = idea.toObject();
+        
+        // 1. Fix Main Author Image
+        if(ideaObj.authorId && ideaObj.authorId.image) {
+            ideaObj.authorImage = ideaObj.authorId.image;
+            ideaObj.authorId = ideaObj.authorId._id;
+        }
+
+        // 2. Fix Post Images
         if (ideaObj.images && ideaObj.images.length > 0) {
             ideaObj.images = ideaObj.images.map(img => ({ src: `data:${img.type};base64,${img.content.toString('base64')}` }));
         } else { ideaObj.images = []; }
+
         res.render('pages/postDetail', { idea: ideaObj, user: res.locals.user });
     } catch (err) { res.redirect('/'); }
 };
@@ -147,11 +189,48 @@ exports.getUserProfile = async (req, res) => {
     try {
         const targetUser = await User.findById(req.params.id);
         if (!targetUser) return res.redirect('/'); 
-        const rawIdeas = await Idea.find({ authorId: req.params.id }).sort({ createdAt: -1 });
-        const ideas = processIdeasImages(rawIdeas);
+        
+        // PFP FIX for Contribution List
+        const rawIdeas = await Idea.find({ authorId: req.params.id })
+            .sort({ createdAt: -1 })
+            .populate('authorId', 'image'); // Populate only image needed for processing
+
+        const ideas = processIdeasData(rawIdeas);
         res.render('pages/userProfile', { targetUser, ideas, user: res.locals.user, pageTitle: `${targetUser.displayName}'s Profile` });
     } catch (err) { res.redirect('/'); }
 };
+
+exports.getBookmarks = async (req, res) => {
+    if(!req.session.userId) return res.redirect('/login');
+    // PFP FIX: Nested Populate for Bookmarked Idea Authors
+    const user = await User.findById(req.session.userId)
+        .populate({
+            path: 'bookmarks',
+            populate: { path: 'authorId', select: 'displayName image' }
+        });
+    res.render('pages/dashboard', { ideas: processIdeasData(user.bookmarks || []), user: res.locals.user, currentCategory: 'Bookmarks', pageTitle: 'Saved' });
+};
+
+exports.getActivity = async (req, res) => {
+    if(!req.session.userId) return res.redirect('/login');
+    // PFP FIX
+    const raw = await Idea.find({ authorId: req.session.userId })
+        .sort({createdAt: -1})
+        .populate('authorId', 'displayName image');
+    res.render('pages/dashboard', { ideas: processIdeasData(raw), user: res.locals.user, currentCategory: 'Activity', pageTitle: 'My Activity' });
+};
+
+exports.getAnalytics = async (req, res) => {
+    if(!req.session.userId) return res.redirect('/login');
+    // PFP FIX for Top Performers List
+    const myIdeas = await Idea.find({ authorId: req.session.userId })
+        .populate('authorId', 'displayName image');
+
+    const stats = { totalViews: myIdeas.reduce((a,c)=>a+c.views,0), totalUpvotes: myIdeas.reduce((a,c)=>a+c.upvotes.length,0), totalComments: myIdeas.reduce((a,c)=>a+c.comments.length,0), ideaCount: myIdeas.length };
+    res.render('pages/analytics', { user: res.locals.user, stats, ideas: processIdeasData(myIdeas) });
+};
+
+// --- REST OF THE FUNCTIONS (Standard) ---
 
 exports.getConnections = async (req, res) => {
     try {
@@ -170,8 +249,6 @@ exports.getNotifications = async (req, res) => {
         res.render('pages/notifications', { user: res.locals.user, notifications: sortedNotifs, pageTitle: 'Notifications' });
     } catch (err) { res.redirect('/'); }
 };
-
-// --- ACTIONS ---
 
 exports.followUser = async (req, res) => {
     if (!req.session.userId) return res.json({ error: "Login required" });
@@ -295,8 +372,6 @@ exports.getEditPost = async (req, res) => {
     res.render('pages/editPost', { idea, user: res.locals.user });
 };
 
-// --- SETTINGS & AUTH ---
-
 exports.getSettings = async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     let msg = null;
@@ -360,17 +435,71 @@ exports.postSignup = async (req, res) => {
 };
 exports.getBookmarks = async (req, res) => {
     if(!req.session.userId) return res.redirect('/login');
-    const user = await User.findById(req.session.userId).populate('bookmarks');
-    res.render('pages/dashboard', { ideas: processIdeasImages(user.bookmarks || []), user: res.locals.user, currentCategory: 'Bookmarks', pageTitle: 'Saved' });
+    const user = await User.findById(req.session.userId).populate({
+            path: 'bookmarks',
+            populate: { path: 'authorId', select: 'displayName image' }
+        });
+    res.render('pages/dashboard', { ideas: processIdeasData(user.bookmarks || []), user: res.locals.user, currentCategory: 'Bookmarks', pageTitle: 'Saved' });
 };
 exports.getActivity = async (req, res) => {
     if(!req.session.userId) return res.redirect('/login');
-    const raw = await Idea.find({ authorId: req.session.userId }).sort({createdAt: -1});
-    res.render('pages/dashboard', { ideas: processIdeasImages(raw), user: res.locals.user, currentCategory: 'Activity', pageTitle: 'My Activity' });
+    const raw = await Idea.find({ authorId: req.session.userId }).sort({createdAt: -1}).populate('authorId', 'displayName image');
+    res.render('pages/dashboard', { ideas: processIdeasData(raw), user: res.locals.user, currentCategory: 'Activity', pageTitle: 'My Activity' });
 };
 exports.getAnalytics = async (req, res) => {
     if(!req.session.userId) return res.redirect('/login');
-    const myIdeas = await Idea.find({ authorId: req.session.userId });
+    const myIdeas = await Idea.find({ authorId: req.session.userId }).populate('authorId', 'displayName image');
     const stats = { totalViews: myIdeas.reduce((a,c)=>a+c.views,0), totalUpvotes: myIdeas.reduce((a,c)=>a+c.upvotes.length,0), totalComments: myIdeas.reduce((a,c)=>a+c.comments.length,0), ideaCount: myIdeas.length };
-    res.render('pages/analytics', { user: res.locals.user, stats, ideas: processIdeasImages(myIdeas) });
+    res.render('pages/analytics', { user: res.locals.user, stats, ideas: processIdeasData(myIdeas) });
+};
+// --- LEADERBOARD & STATIC PAGES ---
+
+// 1. Get Hall of Fame (Calculates Top Users based on Total Upvotes Received)
+exports.getLeaderboard = async (req, res) => {
+    try {
+        // Aggregation Pipeline: Users ke saare ideas dhoondo, unke upvotes count karo
+        const leaderboard = await Idea.aggregate([
+            { $group: { 
+                _id: "$authorId", 
+                totalUpvotes: { $sum: { $size: "$upvotes" } },
+                totalIdeas: { $sum: 1 },
+                authorName: { $first: "$author" } // Backup name
+            }},
+            { $sort: { totalUpvotes: -1 } }, // Highest upvotes first
+            { $limit: 10 } // Top 10 only
+        ]);
+
+        // Author details (Image etc.) populate karne ke liye
+        await User.populate(leaderboard, { path: "_id", select: "displayName image bio" });
+
+        res.render('pages/leaderboard', { 
+            users: leaderboard, 
+            user: res.locals.user, 
+            pageTitle: 'Hall of Fame 🏆' 
+        });
+    } catch (err) { console.error(err); res.redirect('/'); }
+};
+
+// 2. Smart Static Page Handler (Handles About, FAQ, Terms, etc. in ONE function)
+exports.getStaticPage = (req, res) => {
+    const page = req.params.page; // URL se page ka naam milega (e.g., 'about', 'faq')
+    const titles = {
+        'about': 'About Us',
+        'contact': 'Contact Us',
+        'how-to-use': 'How to Use Ideate',
+        'guidelines': 'Community Guidelines',
+        'faq': 'Frequently Asked Questions',
+        'terms': 'Terms & Conditions',
+        'privacy': 'Privacy Policy'
+    };
+
+    // Agar page list mein hai toh render karo, warna 404/Home
+    if (titles[page]) {
+        res.render(`pages/info/${page}`, { 
+            user: res.locals.user, 
+            pageTitle: titles[page] 
+        });
+    } else {
+        res.redirect('/');
+    }
 };

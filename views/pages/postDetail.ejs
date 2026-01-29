@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
+
 <style>
     /* Mention Suggestion Box Style */
     .suggestion-box {
@@ -33,8 +34,10 @@
 
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
     <%- include('../partials/sidebar') %>
+    
     <main class="ml-64 flex-1 p-8">
         <div class="max-w-4xl mx-auto">
+            
             <button onclick="history.back()" class="flex items-center space-x-2 text-slate-400 hover:text-white mb-6">
                 <i class="ri-arrow-left-line"></i><span>Back</span>
             </button>
@@ -42,11 +45,26 @@
             <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl shadow-2xl mb-10">
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                         <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase tracking-wider"><%= idea.category %></span>
-                         <h1 class="text-4xl font-bold text-white mt-4 mb-2"><%= idea.title %></h1>
-                         <div class="flex items-center gap-2 text-slate-500 text-sm">
-                             <span>By <a href="/user/<%= idea.authorId %>" class="text-blue-400 hover:underline"><%= idea.author %></a></span>
-                         </div>
+                        <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase tracking-wider"><%= idea.category %></span>
+                        <h1 class="text-4xl font-bold text-white mt-4 mb-2"><%= idea.title %></h1>
+                        
+                        <div class="flex items-center gap-3 mt-4">
+                            <a href="/user/<%= idea.authorId %>" class="shrink-0">
+                                <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold overflow-hidden border border-slate-600">
+                                    <% if (idea.authorImage) { %>
+                                        <img src="<%= idea.authorImage %>" class="w-full h-full object-cover">
+                                    <% } else { %>
+                                        <%= idea.author.charAt(0) %>
+                                    <% } %>
+                                </div>
+                            </a>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-white"><%= idea.title %></span>
+                                <div class="text-xs text-slate-500">
+                                    By <a href="/user/<%= idea.authorId %>" class="text-blue-400 hover:underline"><%= idea.author %></a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -59,9 +77,11 @@
                 <% } %>
 
                 <p class="text-slate-300 text-lg leading-relaxed whitespace-pre-line mb-10"><%= idea.description %></p>
+                
                 <div class="flex items-center gap-6 border-t border-slate-800 pt-6">
                     <a href="/post/<%= idea._id %>/raise" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl transition">
-                        <i class="ri-arrow-up-circle-fill text-xl text-green-400"></i> <span class="font-bold">Raise Idea (<%= idea.upvotes.length %>)</span>
+                        <i class="ri-arrow-up-circle-fill text-xl text-green-400"></i> 
+                        <span class="font-bold">Raise Idea (<%= idea.upvotes.length %>)</span>
                     </a>
                 </div>
             </div>
@@ -80,10 +100,19 @@
                 <div class="space-y-6">
                     <% idea.comments.forEach(comment => { %>
                         <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                            
                             <div class="flex items-center gap-3 mb-3">
-                                <a href="/user/<%= comment.userId %>" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white hover:bg-blue-600 transition"><%= comment.user.charAt(0) %></a>
+                                <a href="/user/<%= comment.userId._id || comment.userId %>" class="shrink-0">
+                                    <% if (comment.userId && comment.userId.image) { %>
+                                        <img src="<%= comment.userId.image %>" class="w-8 h-8 rounded-full object-cover border border-slate-600 hover:border-blue-500 transition">
+                                    <% } else { %>
+                                        <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white hover:bg-blue-600 transition">
+                                            <%= comment.user.charAt(0) %>
+                                        </div>
+                                    <% } %>
+                                </a>
                                 <div>
-                                    <a href="/user/<%= comment.userId %>" class="font-bold text-slate-300 text-sm hover:text-blue-400 transition"><%= comment.user %></a>
+                                    <a href="/user/<%= comment.userId._id || comment.userId %>" class="font-bold text-slate-300 text-sm hover:text-blue-400 transition"><%= comment.user %></a>
                                     <span class="text-xs text-slate-600 ml-2"><%= comment.createdAt.toLocaleDateString() %></span>
                                 </div>
                             </div>
@@ -98,7 +127,17 @@
                                         <div class="bg-slate-900/80 p-3 rounded-lg group">
                                             <div class="flex justify-between items-start">
                                                 <div class="flex items-center gap-2 mb-1">
-                                                    <a href="/user/<%= reply.userId %>" class="font-bold text-blue-400 text-xs hover:underline"><%= reply.user %></a>
+                                                    <a href="/user/<%= reply.userId._id || reply.userId %>" class="shrink-0">
+                                                        <% if (reply.userId && reply.userId.image) { %>
+                                                            <img src="<%= reply.userId.image %>" class="w-5 h-5 rounded-full object-cover border border-slate-600">
+                                                        <% } else { %>
+                                                            <div class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white">
+                                                                <%= reply.user.charAt(0) %>
+                                                            </div>
+                                                        <% } %>
+                                                    </a>
+
+                                                    <a href="/user/<%= reply.userId._id || reply.userId %>" class="font-bold text-blue-400 text-xs hover:underline"><%= reply.user %></a>
                                                 </div>
                                                 <button onclick="replyToUser('<%= comment._id %>', '<%= reply.user %>')" class="text-[10px] text-slate-500 hover:text-white opacity-0 group-hover:opacity-100 transition px-2 py-1 bg-slate-800 rounded">Reply</button>
                                             </div>
@@ -119,12 +158,14 @@
                                     </form>
                                 </details>
                             </div>
+
                         </div>
                     <% }) %>
                 </div>
             </div>
         </div>
     </main>
+
     <%- include('../partials/postModal') %>
 
     <script>
@@ -136,62 +177,50 @@
             const val = input.value;
             const lastWord = val.split(' ').pop();
 
-            // Check if typing @name
             if (lastWord.startsWith('@') && lastWord.length > 1) {
                 const query = lastWord.substring(1); 
-                
-                // Fetch Users from API
                 const res = await fetch(`/api/users/search?q=${query}`);
                 const users = await res.json();
 
                 if (users.length > 0) {
-                    // Position Box
                     box.style.left = (input.offsetLeft + 20) + 'px'; 
                     box.style.top = (input.offsetTop + input.offsetHeight) + 'px';
                     
-                    // Render List
                     box.innerHTML = users.map(u => `
                         <div class="suggestion-item" onclick="selectUser('${u.displayName}')">
-                            <div class="avatar">${u.displayName.charAt(0)}</div>
+                            ${u.image ? 
+                                `<img src="${u.image}" class="w-5 h-5 rounded-full object-cover">` : 
+                                `<div class="avatar">${u.displayName.charAt(0)}</div>`
+                            }
                             <span>${u.displayName}</span>
                         </div>
                     `).join('');
                     
-                    // Append near input
                     input.parentNode.appendChild(box); 
                     box.style.display = 'block';
-                } else {
-                    box.style.display = 'none';
-                }
-            } else {
-                box.style.display = 'none';
-            }
+                } else { box.style.display = 'none'; }
+            } else { box.style.display = 'none'; }
         }
 
         function selectUser(name) {
             const val = currentInput.value;
             const words = val.split(' ');
-            words.pop(); // Remove partial
-            words.push(`@${name} `); // Add full mention
+            words.pop(); 
+            words.push(`@${name} `); 
             currentInput.value = words.join(' ');
             box.style.display = 'none';
             currentInput.focus();
         }
 
-        // Hide box on click outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.suggestion-box')) box.style.display = 'none';
         });
 
-        // Reply Button Logic
         function replyToUser(commentId, username) {
             const details = document.getElementById(`details-${commentId}`);
             if(details) details.open = true;
             const input = document.getElementById(`input-${commentId}`);
-            if(input) {
-                input.value = `@${username} `;
-                input.focus();
-            }
+            if(input) { input.value = `@${username} `; input.focus(); }
         }
     </script>
 </body>

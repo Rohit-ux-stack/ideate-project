@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    <%- include('../../partials/sidebar') %>
+
+    <main class="ml-64 flex-1 p-12 max-w-5xl mx-auto">
+        
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-black text-white mb-4">Privacy Policy</h1>
+            <p class="text-lg text-slate-400">Your trust is our most valuable asset. Here is how we protect it.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
+                <i class="ri-database-2-line text-3xl text-blue-400 mb-4"></i>
+                <h3 class="text-lg font-bold text-white mb-2">What We Collect</h3>
+                <p class="text-sm text-slate-400">Basic info like email, username, and the content (ideas, comments) you voluntarily post.</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
+                <i class="ri-lock-2-line text-3xl text-green-400 mb-4"></i>
+                <h3 class="text-lg font-bold text-white mb-2">How We Protect It</h3>
+                <p class="text-sm text-slate-400">Industry-standard encryption (BCrypt) for passwords and secure SSL connections.</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
+                <i class="ri-share-forward-line text-3xl text-purple-400 mb-4"></i>
+                <h3 class="text-lg font-bold text-white mb-2">Data Sharing</h3>
+                <p class="text-sm text-slate-400">We do NOT sell your personal data. We only share anonymized stats for analytics.</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-10 space-y-10 text-slate-300 leading-relaxed">
+            
+            <section>
+                <h2 class="text-xl font-bold text-white mb-3">1. Information We Collect</h2>
+                <p>To provide the Ideate service, we collect the following:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
+                    <li><strong>Account Information:</strong> Display name, email address, and encrypted password.</li>
+                    <li><strong>User Content:</strong> Ideas, descriptions, comments, and images you upload.</li>
+                    <li><strong>Usage Data:</strong> Logs on how you interact with the site (views, clicks) to improve performance.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold text-white mb-3">2. How We Use Your Data</h2>
+                <p>We use your information strictly to:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
+                    <li>Provide, operate, and maintain the platform.</li>
+                    <li>Improve user experience and personalize content (e.g., your feed).</li>
+                    <li>Send important updates regarding your account or security.</li>
+                    <li>Prevent fraud and ensure community safety.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold text-white mb-3">3. Cookies & Tracking</h2>
+                <p>We use minimal cookies (session tokens) solely to keep you logged in and remember your theme preferences (Dark/Light mode). We do not use invasive third-party tracking cookies.</p>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold text-white mb-3">4. Your Rights</h2>
+                <p>You have the right to:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
+                    <li>Access the personal data we hold about you.</li>
+                    <li>Request correction of inaccurate data (via Settings).</li>
+                    <li>Request deletion of your account and all associated data ("Right to be Forgotten").</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold text-white mb-3">5. Contact Us</h2>
+                <p>If you have questions about this Privacy Policy or your data rights, please contact our Data Protection Officer at <a href="mailto:privacy@ideate.com" class="text-blue-400 hover:underline">privacy@ideate.com</a>.</p>
+            </section>
+
+        </div>
+    </main>
+</body>
+</html>

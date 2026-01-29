@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    <%- include('../../partials/sidebar') %>
+    <main class="ml-64 flex-1 p-12 max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-white mb-4">Frequently Asked Questions</h1>
+        <p class="text-slate-400 mb-10">Got questions? We've got answers.</p>
+
+        <div class="space-y-4">
+            <details class="bg-slate-900 p-6 rounded-2xl border border-slate-800 group open:border-blue-500/50 transition">
+                <summary class="font-bold text-white cursor-pointer text-lg flex justify-between items-center">
+                    What is "Raising" an idea?
+                    <i class="ri-arrow-down-s-line text-slate-500 group-open:rotate-180 transition"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed border-t border-slate-800 pt-4">
+                    "Raising" is similar to an upvote or a "like" on other platforms. However, on Ideate, it signifies more—it means you see potential in the concept and want to see it built. Ideas with the most Raises appear on the "Hall of Fame".
+                </p>
+            </details>
+
+            <details class="bg-slate-900 p-6 rounded-2xl border border-slate-800 group open:border-blue-500/50 transition">
+                <summary class="font-bold text-white cursor-pointer text-lg flex justify-between items-center">
+                    Is my intellectual property safe here?
+                    <i class="ri-arrow-down-s-line text-slate-500 group-open:rotate-180 transition"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed border-t border-slate-800 pt-4">
+                    Ideate is an open platform. While our community guidelines prohibit theft, <strong>we recommend not posting sensitive trade secrets or patent-pending mechanics</strong>. Share the "What" and "Why", but keep the proprietary "How" to yourself until you are protected.
+                </p>
+            </details>
+
+            <details class="bg-slate-900 p-6 rounded-2xl border border-slate-800 group open:border-blue-500/50 transition">
+                <summary class="font-bold text-white cursor-pointer text-lg flex justify-between items-center">
+                    Can I collaborate with other users?
+                    <i class="ri-arrow-down-s-line text-slate-500 group-open:rotate-180 transition"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed border-t border-slate-800 pt-4">
+                    Absolutely! That's the whole point. You can use the comments section to offer help. In the future, we are launching a "Join Team" feature to formalize partnerships.
+                </p>
+            </details>
+
+             <details class="bg-slate-900 p-6 rounded-2xl border border-slate-800 group open:border-blue-500/50 transition">
+                <summary class="font-bold text-white cursor-pointer text-lg flex justify-between items-center">
+                    How do I change my Profile Picture?
+                    <i class="ri-arrow-down-s-line text-slate-500 group-open:rotate-180 transition"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed border-t border-slate-800 pt-4">
+                    Go to <a href="/settings" class="text-blue-400 underline">Settings</a> via the sidebar or clicking your profile. Click on your current avatar to upload a new image. We support JPG and PNG formats up to 5MB.
+                </p>
+            </details>
+
+            <details class="bg-slate-900 p-6 rounded-2xl border border-slate-800 group open:border-blue-500/50 transition">
+                <summary class="font-bold text-white cursor-pointer text-lg flex justify-between items-center">
+                    Can I delete my account?
+                    <i class="ri-arrow-down-s-line text-slate-500 group-open:rotate-180 transition"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed border-t border-slate-800 pt-4">
+                    Yes. In the Settings page, scroll to the bottom "Danger Zone". Deleting your account is permanent and will remove all your posted ideas and comments.
+                </p>
+            </details>
+        </div>
+    </main>
+</body>
+</html>

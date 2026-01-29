@@ -21,15 +21,27 @@
                             <% if (user.image) { %>
                                 <img src="<%= user.image %>" class="w-24 h-24 rounded-full object-cover border-4 border-slate-800 group-hover:border-blue-500 transition">
                             <% } else { %>
-                                <div class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center text-3xl font-bold text-slate-500 border-4 border-slate-800"><%= user.displayName.charAt(0) %></div>
+                                <div class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center text-3xl font-bold text-slate-500 border-4 border-slate-800">
+                                    <%= user.displayName.charAt(0) %>
+                                </div>
                             <% } %>
-                            <label class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition"><i class="ri-camera-line text-white text-2xl"></i><input type="file" name="profileImage" class="hidden"></label>
+                            
+                            <label class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition">
+                                <i class="ri-camera-line text-white text-2xl"></i>
+                                <input type="file" name="profileImage" class="hidden" onchange="this.form.submit()">
+                            </label>
                         </div>
-                        <div><h3 class="font-bold text-lg"><%= user.displayName %></h3><p class="text-slate-500 text-sm">Update your photo and details</p></div>
+                        <div>
+                            <h3 class="font-bold text-lg"><%= user.displayName %></h3>
+                            <p class="text-slate-500 text-sm">Click the image to update photo</p>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Display Name</label><input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white"></div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Display Name</label>
+                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Theme</label>
                             <select name="theme" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white">
@@ -38,7 +50,10 @@
                             </select>
                         </div>
                     </div>
-                    <div><label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Bio</label><textarea name="bio" rows="3" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white resize-none" placeholder="Tell us about yourself..."><%= user.bio %></textarea></div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Bio</label>
+                        <textarea name="bio" rows="3" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white resize-none" placeholder="Tell us about yourself..."><%= user.bio %></textarea>
+                    </div>
 
                     <div class="pt-4 border-t border-slate-800">
                         <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Contacts</h3>

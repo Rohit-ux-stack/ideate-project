@@ -58,4 +58,10 @@ router.get('/signup', ideaController.getSignup);
 router.post('/signup', ideaController.postSignup);
 router.get('/logout', (req, res) => { req.session.destroy(() => res.redirect('/')); });
 
+// 🏆 Hall of Fame (Leaderboard)
+router.get('/leaderboard', ideaController.getLeaderboard);
+
+// ℹ️ Info Pages (About, Contact, Rules, etc.)
+router.get('/info/:page', ideaController.getStaticPage);
+
 module.exports = router;
