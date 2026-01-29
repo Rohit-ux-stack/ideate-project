@@ -1,21 +1,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideate - Share Your Innovation</title>
-    
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' | Ideate' : 'Ideate' %></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root { --text-scale: 1; }
+        html.text-small { --text-scale: 0.9; }
+        html.text-normal { --text-scale: 1; }
+        html.text-large { --text-scale: 1.15; }
+
+        body { font-size: calc(1rem * var(--text-scale)); }
         
-        /* Optional: Custom Scrollbar for dark theme */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        /* --- LIGHT MODE CONFIG --- */
+        html.light-mode body { background-color: #f8fafc; color: #0f172a; }
+        
+        /* Backgrounds flip */
+        html.light-mode .bg-\[\#0F172A\] { background-color: #ffffff !important; }
+        html.light-mode .bg-slate-900 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+        html.light-mode .bg-slate-900\/50 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; }
+        html.light-mode aside { background-color: #ffffff !important; border-right-color: #e2e8f0 !important; }
+        
+        /* Text Colors */
+        html.light-mode .text-slate-200, html.light-mode .text-white { color: #0f172a !important; }
+        html.light-mode .text-slate-300 { color: #334155 !important; }
+        html.light-mode .text-slate-400, html.light-mode .text-slate-500 { color: #64748b !important; }
+
+        /* Inputs */
+        html.light-mode input, html.light-mode textarea { 
+            background-color: #f8fafc !important; border-color: #cbd5e1 !important; color: #0f172a !important; 
+        }
+
+        /* ✅ BUTTON FIX: Light Mode Buttons (Invert Colors) */
+        /* Yeh class hum buttons pe lagayenge taaki wo light mode mein grey ho jaye */
+        html.light-mode .action-btn {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        /* Keep Blue buttons Blue (but ensure text is white) */
+        html.light-mode .bg-blue-600 .text-white { color: #ffffff !important; }
+        
+        /* Keep Red buttons Red */
+        html.light-mode .bg-red-600 .text-white, 
+        html.light-mode .bg-red-500 .text-white { color: #ffffff !important; }
+        
+        /* Keep Back Button on Banner White (Important for visibility over images) */
+        html.light-mode .banner-btn { 
+            color: #ffffff !important; 
+            background-color: rgba(0,0,0,0.5) !important; 
+            border-color: rgba(255,255,255,0.2) !important;
+        }
     </style>
+
+    <script>
+        (function() {
+            // ✅ CRASH FIX: Added check for '&& user'
+            const theme = "<%= (typeof user !== 'undefined' && user && user.preferences) ? user.preferences.theme : 'dark' %>";
+            const size = "<%= (typeof user !== 'undefined' && user && user.preferences) ? user.preferences.textSize : 'normal' %>";
+            
+            if(theme === 'light') document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.add('text-' + size);
+        })();
+
+        function safeBack() {
+            if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+                history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+    </script>
 </head>

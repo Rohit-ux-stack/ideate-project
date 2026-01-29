@@ -17,7 +17,8 @@ const upload = multer({
 router.get('/api/users/search', ideaController.searchUsers);
 router.get('/api/notifications/check', ideaController.checkNotifications);
 router.post('/api/notifications/read/:id', ideaController.markNotificationRead);
-
+// Remove Follower Route
+router.get('/remove-follower/:id', ideaController.removeFollower);
 // --- MAIN PAGES ---
 router.get('/', ideaController.getDashboard);
 router.get('/bookmarks', ideaController.getBookmarks);
@@ -47,16 +48,14 @@ router.get('/follow/:id', ideaController.followUser);
 // --- SETTINGS ---
 router.get('/profile', (req, res) => res.redirect('/settings'));
 router.get('/settings', ideaController.getSettings);
-router.post('/settings/update', upload.single('profileImage'), ideaController.updateSettings);
+// Old: upload.single('profileImage')
+// New: upload.fields(...)
+router.post('/settings/update', upload.fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'bannerImage', maxCount: 1 }
+]), ideaController.updateSettings);
 router.post('/settings/change-password', ideaController.changePassword);
 router.post('/settings/delete-account', ideaController.deleteAccount);
-
-// --- AUTH ---
-router.get('/login', ideaController.getLogin);
-router.post('/login', ideaController.postLogin);
-router.get('/signup', ideaController.getSignup);
-router.post('/signup', ideaController.postSignup);
-router.get('/logout', (req, res) => { req.session.destroy(() => res.redirect('/')); });
 
 // 🏆 Hall of Fame (Leaderboard)
 router.get('/leaderboard', ideaController.getLeaderboard);

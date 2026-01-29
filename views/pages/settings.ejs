@@ -3,91 +3,234 @@
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
     <%- include('../partials/sidebar') %>
-    <main class="ml-64 flex-1 flex items-center justify-center p-8">
-        <div class="w-full max-w-2xl space-y-8">
+
+    <main class="ml-64 flex-1 p-8">
+        <div class="max-w-5xl mx-auto">
             
-            <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-3xl font-bold mb-6 text-white border-b border-slate-800 pb-4">Profile Settings</h2>
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="safeBack()" class="bg-slate-800 p-2 rounded-full hover:bg-slate-700 transition text-slate-400 border border-slate-700">
+                    <i class="ri-arrow-left-line text-xl"></i>
+                </button>
+                <h1 class="text-3xl font-bold text-white">Settings & Personalization</h1>
+            </div>
+
+            <% if (message) { %>
+                <div class="mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-2 <%= message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20' %>">
+                    <i class="<%= message.type === 'success' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line' %> text-xl"></i>
+                    <%= message.text %>
+                </div>
+            <% } %>
+
+            <form action="/settings/update" method="POST" enctype="multipart/form-data" class="space-y-8">
                 
-                <% if (typeof message !== 'undefined' && message) { %>
-                    <div class="<%= message.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20' %> p-4 rounded-xl mb-6 text-sm font-bold text-center border">
-                        <%= message.text %>
-                    </div>
-                <% } %>
-
-                <form action="/settings/update" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    <div class="flex items-center space-x-6">
-                        <div class="relative group">
-                            <% if (user.image) { %>
-                                <img src="<%= user.image %>" class="w-24 h-24 rounded-full object-cover border-4 border-slate-800 group-hover:border-blue-500 transition">
-                            <% } else { %>
-                                <div class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center text-3xl font-bold text-slate-500 border-4 border-slate-800">
-                                    <%= user.displayName.charAt(0) %>
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="ri-image-edit-line text-purple-500"></i> Visual Identity
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Profile Picture</label>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
+                                    <% if (user.image) { %>
+                                        <img src="<%= user.image %>" class="w-full h-full object-cover" id="pfpPreview">
+                                    <% } else { %>
+                                        <div class="w-full h-full flex items-center justify-center text-xl font-bold text-slate-500"><%= user.displayName.charAt(0) %></div>
+                                    <% } %>
                                 </div>
-                            <% } %>
-                            
-                            <label class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition">
-                                <i class="ri-camera-line text-white text-2xl"></i>
-                                <input type="file" name="profileImage" class="hidden" onchange="this.form.submit()">
-                            </label>
+                                <input type="file" name="profileImage" onchange="previewImage(event, 'pfpPreview')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-lg"><%= user.displayName %></h3>
-                            <p class="text-slate-500 text-sm">Click the image to update photo</p>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Display Name</label>
-                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Theme</label>
-                            <select name="theme" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white">
-                                <option value="dark" <%= user.preferences && user.preferences.theme === 'dark' ? 'selected' : '' %>>Dark Mode</option>
-                                <option value="light" <%= user.preferences && user.preferences.theme === 'light' ? 'selected' : '' %>>Light Mode</option>
-                            </select>
+                            <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Banner Image</label>
+                            <div class="flex items-center gap-4">
+                                <div class="w-24 h-16 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden">
+                                    <% if (user.bannerImage) { %>
+                                        <img src="<%= user.bannerImage %>" class="w-full h-full object-cover" id="bannerPreview">
+                                    <% } else { %>
+                                        <div class="w-full h-full flex items-center justify-center text-slate-500"><i class="ri-image-line"></i></div>
+                                    <% } %>
+                                </div>
+                                <input type="file" name="bannerImage" onchange="previewImage(event, 'bannerPreview')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"/>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="ri-paint-brush-line text-pink-500"></i> Appearance
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Theme</label>
+                            <div class="flex gap-4">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="theme" value="dark" class="peer sr-only" <%= (!user.preferences || user.preferences.theme === 'dark') ? 'checked' : '' %>>
+                                    <div class="px-6 py-3 rounded-xl border border-slate-700 bg-slate-900 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition flex items-center gap-2">
+                                        <i class="ri-moon-line"></i> Dark
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="theme" value="light" class="peer sr-only" <%= (user.preferences && user.preferences.theme === 'light') ? 'checked' : '' %>>
+                                    <div class="px-6 py-3 rounded-xl border border-slate-700 bg-slate-100 text-slate-800 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-600 transition flex items-center gap-2">
+                                        <i class="ri-sun-line"></i> Light
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Text Size</label>
+                            <div class="flex gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl w-fit">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="textSize" value="small" class="peer sr-only" <%= (user.preferences && user.preferences.textSize === 'small') ? 'checked' : '' %>>
+                                    <div class="px-4 py-2 rounded-lg text-xs peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="textSize" value="normal" class="peer sr-only" <%= (!user.preferences || user.preferences.textSize === 'normal') ? 'checked' : '' %>>
+                                    <div class="px-4 py-2 rounded-lg text-sm peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="textSize" value="large" class="peer sr-only" <%= (user.preferences && user.preferences.textSize === 'large') ? 'checked' : '' %>>
+                                    <div class="px-4 py-2 rounded-lg text-lg peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="ri-user-settings-line text-blue-500"></i> Personal Info
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Display Name</label>
+                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-slate-400 text-xs uppercase font-bold">Phone Number</label>
+                            <div class="flex gap-2">
+                                <input type="tel" name="phone" value="<%= user.phone || '' %>" placeholder="+91..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                <label class="shrink-0 flex items-center justify-center w-12 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition" title="Show on Profile?">
+                                    <input type="checkbox" name="showPhone" class="peer sr-only" <%= (user.privacy && user.privacy.showPhone) ? 'checked' : '' %>>
+                                    <i class="ri-eye-off-line text-slate-500 peer-checked:hidden text-xl"></i>
+                                    <i class="ri-eye-line text-green-400 hidden peer-checked:block text-xl"></i>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-slate-400 text-xs uppercase font-bold">Email (Read Only)</label>
+                            <div class="flex gap-2">
+                                <input type="email" value="<%= user.email %>" readonly class="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed">
+                                <label class="shrink-0 flex items-center justify-center w-12 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition" title="Show on Profile?">
+                                    <input type="checkbox" name="showEmail" class="peer sr-only" <%= (user.privacy && user.privacy.showEmail) ? 'checked' : '' %>>
+                                    <i class="ri-eye-off-line text-slate-500 peer-checked:hidden text-xl"></i>
+                                    <i class="ri-eye-line text-green-400 hidden peer-checked:block text-xl"></i>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-slate-400 text-xs uppercase font-bold">Date of Birth</label>
+                            <div class="flex gap-2">
+                                <input type="date" name="dob" value="<%= user.dob ? user.dob.toISOString().split('T')[0] : '' %>" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                <label class="shrink-0 flex items-center justify-center w-12 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition" title="Show on Profile?">
+                                    <input type="checkbox" name="showDob" class="peer sr-only" <%= (user.privacy && user.privacy.showDob) ? 'checked' : '' %>>
+                                    <i class="ri-eye-off-line text-slate-500 peer-checked:hidden text-xl"></i>
+                                    <i class="ri-eye-line text-green-400 hidden peer-checked:block text-xl"></i>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="ri-briefcase-line text-green-500"></i> Professional
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="text" name="title" value="<%= user.title || '' %>" placeholder="Title (e.g. Developer)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
+                        <input type="text" name="location" value="<%= user.location || '' %>" placeholder="Location" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
+                        <div class="md:col-span-2">
+                            <input type="text" name="skills" value="<%= user.skills ? user.skills.join(', ') : '' %>" placeholder="Skills (comma separated)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <textarea name="bio" rows="3" placeholder="Bio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none"><%= user.bio %></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="ri-links-line text-sky-500"></i> Social Links
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="text" name="website" value="<%= user.contacts ? user.contacts.website : '' %>" placeholder="Website URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
+                        <input type="text" name="github" value="<%= user.contacts ? user.contacts.github : '' %>" placeholder="GitHub URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
+                        <input type="text" name="linkedin" value="<%= user.contacts ? user.contacts.linkedin : '' %>" placeholder="LinkedIn URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
+                        <input type="text" name="twitter" value="<%= user.contacts ? user.contacts.twitter : '' %>" placeholder="Twitter URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end sticky bottom-6 z-20">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition shadow-xl shadow-blue-900/20 text-lg flex items-center gap-2">
+                        <i class="ri-save-line"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-12 mb-12 border-t border-slate-800 pt-8">
+                <h3 class="text-red-500 font-bold mb-4">Danger Zone</h3>
+                <div class="flex justify-between items-center bg-red-500/5 border border-red-500/10 p-6 rounded-2xl">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Bio</label>
-                        <textarea name="bio" rows="3" class="w-full bg-[#161B22] border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none text-white resize-none" placeholder="Tell us about yourself..."><%= user.bio %></textarea>
+                        <div class="font-bold text-white">Delete Account</div>
+                        <div class="text-xs text-slate-400">Permanently remove your profile and all ideas.</div>
                     </div>
-
-                    <div class="pt-4 border-t border-slate-800">
-                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Contacts</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <div class="flex items-center bg-[#161B22] border border-slate-700 rounded-xl px-3"><i class="ri-mail-line text-slate-400 text-lg"></i><input type="email" name="email" value="<%= user.contacts ? user.contacts.email : '' %>" class="w-full bg-transparent border-none text-sm text-slate-200 p-3 focus:ring-0" placeholder="Public Email"></div>
-                            <div class="flex items-center bg-[#161B22] border border-slate-700 rounded-xl px-3"><i class="ri-linkedin-fill text-slate-400 text-lg"></i><input type="text" name="linkedin" value="<%= user.contacts ? user.contacts.linkedin : '' %>" class="w-full bg-transparent border-none text-sm text-slate-200 p-3 focus:ring-0" placeholder="LinkedIn URL"></div>
-                            <div class="flex items-center bg-[#161B22] border border-slate-700 rounded-xl px-3"><i class="ri-github-fill text-slate-400 text-lg"></i><input type="text" name="github" value="<%= user.contacts ? user.contacts.github : '' %>" class="w-full bg-transparent border-none text-sm text-slate-200 p-3 focus:ring-0" placeholder="GitHub URL"></div>
-                            <div class="flex items-center bg-[#161B22] border border-slate-700 rounded-xl px-3"><i class="ri-global-line text-slate-400 text-lg"></i><input type="text" name="website" value="<%= user.contacts ? user.contacts.website : '' %>" class="w-full bg-transparent border-none text-sm text-slate-200 p-3 focus:ring-0" placeholder="Website"></div>
-                            <div class="flex items-center bg-[#161B22] border border-slate-700 rounded-xl px-3"><i class="ri-twitter-x-line text-slate-400 text-lg"></i><input type="text" name="twitter" value="<%= user.contacts ? user.contacts.twitter : '' %>" class="w-full bg-transparent border-none text-sm text-slate-200 p-3 focus:ring-0" placeholder="X (Twitter) URL"></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-900/40 transition">Save Changes</button>
-                </form>
-            </div>
-
-            <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 shadow-xl">
-                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2"><i class="ri-lock-password-line text-blue-500"></i> Change Password</h3>
-                <form action="/settings/change-password" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="password" name="currentPassword" placeholder="Current Password" required class="bg-[#161B22] border border-slate-700 p-3 rounded-xl text-white focus:border-blue-500 outline-none">
-                    <input type="password" name="newPassword" placeholder="New Password" required class="bg-[#161B22] border border-slate-700 p-3 rounded-xl text-white focus:border-blue-500 outline-none">
-                    <button type="submit" class="md:col-span-2 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition">Update Password</button>
-                </form>
-            </div>
-
-            <div class="bg-red-500/5 border border-red-500/20 rounded-3xl p-8 shadow-xl">
-                <h3 class="text-xl font-bold text-red-500 mb-2 flex items-center gap-2"><i class="ri-alert-line"></i> Danger Zone</h3>
-                <p class="text-slate-400 text-sm mb-6">Deleting your account is irreversible. All your ideas, comments, and profile data will be permanently removed.</p>
-                <form action="/settings/delete-account" method="POST" onsubmit="return confirm('Are you strictly sure? This cannot be undone.');">
-                    <button type="submit" class="w-full bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 hover:border-transparent py-3 rounded-xl font-bold transition">Delete My Account</button>
-                </form>
+                    <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="text-red-500 hover:text-red-400 font-bold text-sm border border-red-500/30 px-4 py-2 rounded-lg hover:bg-red-500/10 transition">Delete</button>
+                </div>
             </div>
 
         </div>
     </main>
+
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0F172A] border border-slate-700 rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-red-500/20">
+                    <i class="ri-alarm-warning-line"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Delete Account?</h3>
+                <p class="text-slate-400 text-sm">This action is <strong>irreversible</strong>.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition border border-slate-700">Cancel</button>
+                <form action="/settings/delete-account" method="POST" class="w-full">
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold transition shadow-lg shadow-red-900/20">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function safeBack() {
+             if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) history.back();
+             else window.location.href = '/';
+        }
+
+        function previewImage(event, previewId) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById(previewId);
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 </body>
 </html>

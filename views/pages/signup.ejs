@@ -1,52 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Ideate</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
-</head>
-<body class="bg-[#0F172A] text-slate-200 min-h-screen flex items-center justify-center p-4">
-
-    <div class="w-full max-w-md bg-[#11161D] border border-slate-800 p-8 rounded-3xl shadow-2xl">
+<%- include('../partials/head') %>
+<body class="bg-[#0F172A] flex items-center justify-center min-h-screen p-4 font-sans">
+    
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
+        
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-500 italic mb-2">IDEATE</h1>
-            <p class="text-slate-500">Start your innovation journey.</p>
+            <h1 class="text-3xl font-bold text-white mb-2">Create Account</h1>
+            <p class="text-slate-400">Join the community of innovators</p>
         </div>
 
-        <% if (locals.error) { %>
-            <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold text-center">
-                ⚠️ <%= error %>
+        <% if (error) { %>
+            <div class="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-6 text-sm font-bold flex items-center gap-2">
+                <i class="ri-error-warning-line text-lg"></i> <%= error %>
             </div>
         <% } %>
 
-        <form action="/signup" method="POST" class="space-y-6">
+        <form id="signupForm" action="/signup" method="POST" class="space-y-4">
+            
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Full Name</label>
-                <input type="text" name="displayName" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none text-white transition" required>
+                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Display Name</label>
+                <input type="text" name="displayName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Email Address</label>
-                <input type="email" name="email" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none text-white transition" required>
+                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Email Address</label>
+                <input type="email" name="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Password</label>
-                <input type="password" name="password" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none text-white transition" required>
+                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Password</label>
+                <input type="password" name="password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition shadow-lg shadow-blue-900/40">
-                Create Account
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-900/20 mt-4 flex items-center justify-center gap-2">
+                
+                <i id="btnLoader" class="ri-loader-4-line animate-spin text-xl hidden"></i>
+                
+                <span id="btnText">Create Account</span>
             </button>
+
         </form>
 
-        <p class="text-center mt-8 text-slate-500 text-sm">
-            Already have an account? <a href="/login" class="text-blue-400 font-bold hover:underline">Sign In</a>
-        </p>
+        <div class="mt-6 text-center">
+            <p class="text-slate-500 text-sm">Already have an account? <a href="/login" class="text-blue-400 hover:text-blue-300 font-bold">Log in</a></p>
+        </div>
     </div>
+
+    <script>
+        const form = document.getElementById('signupForm');
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const loader = document.getElementById('btnLoader');
+
+        form.addEventListener('submit', function() {
+            // 1. Button ko disable karo taaki double click na ho
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // 2. Text change karo taaki user ko reason pata chale
+            btnText.innerText = "Sending Verification Code...";
+            
+            // 3. Loading Spinner dikhao
+            loader.classList.remove('hidden');
+
+            // Note: Form apne aap submit ho jayega iske baad
+        });
+    </script>
 
 </body>
 </html>
