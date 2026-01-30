@@ -19,24 +19,34 @@
         <form id="signupForm" action="/signup" method="POST" class="space-y-4">
             
             <div>
-                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Display Name</label>
-                <input type="text" name="displayName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Full Name</label>
+                <input type="text" name="name" required placeholder="" 
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Username</label>
+                <input type="text" name="username" id="usernameInput" required placeholder="" 
+                       oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+                <p class="text-[10px] text-slate-500 mt-1">3-20 chars. No spaces. Dots, underscores & emojis allowed.</p>
             </div>
 
             <div>
                 <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Email Address</label>
-                <input type="email" name="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+                <input type="email" name="email" required placeholder=""
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
                 <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Password</label>
-                <input type="password" name="password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+                <input type="password" name="password" required placeholder=""
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition">
+                       
             </div>
 
             <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-900/20 mt-4 flex items-center justify-center gap-2">
-                
                 <i id="btnLoader" class="ri-loader-4-line animate-spin text-xl hidden"></i>
-                
                 <span id="btnText">Create Account</span>
             </button>
 
@@ -54,17 +64,11 @@
         const loader = document.getElementById('btnLoader');
 
         form.addEventListener('submit', function() {
-            // 1. Button ko disable karo taaki double click na ho
+            // Button state during submission
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            // 2. Text change karo taaki user ko reason pata chale
             btnText.innerText = "Sending Verification Code...";
-            
-            // 3. Loading Spinner dikhao
             loader.classList.remove('hidden');
-
-            // Note: Form apne aap submit ho jayega iske baad
         });
     </script>
 

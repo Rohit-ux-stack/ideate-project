@@ -2,23 +2,32 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     displayName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    
+    // ✅ ADDED: Unique Username Field
+    username: { 
+        type: String, 
+        required: true, 
+        unique: true, 
+        lowercase: true, 
+        trim: true 
+    },
+    
+    email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
     
-    // ✅ NEW: OTP & Verification Fields
+    // ✅ OTP & Verification Fields
     otp: { type: String },
     otpExpires: { type: Date },
-    isVerified: { type: Boolean, default: false }, // Default false rakha hai taaki bina OTP ke login na ho
+    isVerified: { type: Boolean, default: false },
 
     // --- IDENTITY (Profile & Banner) ---
-    image: { type: String },          // Profile Pic (Base64 String for display)
-    imageType: { type: String },      // Mime type (e.g., image/png)
-    imageContent: { type: Buffer },   // Profile Pic (Raw Buffer)
-    
-    bannerImage: { type: String },    // Banner Image (Base64 String)
+    image: { type: String },           
+    imageType: { type: String },       
+    imageContent: { type: Buffer },    
+    bannerImage: { type: String },    
 
     bio: { type: String },
-    title: { type: String },          // e.g., Student, Developer
+    title: { type: String },           
     
     // --- PERSONAL DETAILS ---
     dob: { type: Date },
@@ -44,8 +53,8 @@ const userSchema = new mongoose.Schema({
 
     // --- APP APPEARANCE ---
     preferences: {
-        theme: { type: String, default: 'dark' }, // 'dark' or 'light'
-        textSize: { type: String, default: 'normal' }, // 'small', 'normal', 'large'
+        theme: { type: String, default: 'dark' }, 
+        textSize: { type: String, default: 'normal' }, 
         emailNotifs: { type: Boolean, default: true }
     },
 

@@ -5,56 +5,66 @@ const sendEmail = require('../utils/sendEmail');
 // --- 1. SIGNUP WITH OTP ---
 exports.signup = async (req, res) => {
     try {
-        const { displayName, email, password } = req.body;
+        let { name, username, email, password } = req.body;
 
-        // Check if user exists
-        let user = await User.findOne({ email });
+        // ✅ 1. USERNAME CLEANUP: Lowercase + No Spaces
+        const cleanUsername = username.toLowerCase().replace(/\s/g, '');
 
-        if (user) {
-            // CASE 1: User pehle se hai aur VERIFIED hai -> Error do
-            if (user.isVerified) {
-                return res.render('pages/signup', { error: 'Email already registered' });
-            }
-            
-            // CASE 2: User hai par VERIFY NAHI kiya (Adhura Signup) -> OTP Update karo aur Resend karo
-            console.log("⚠️ Unverified user found. Updating OTP...");
-            const hashedPassword = await bcrypt.hash(password, 12);
-            const otp = Math.floor(1000 + Math.random() * 9000).toString();
-            
-            user.displayName = displayName;
-            user.password = hashedPassword;
-            user.otp = otp;
-            user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-            await user.save();
+        // Regex: Letters, Numbers, Dots, Underscores, Emojis | Length: 3-20
+        const usernameRegex = /^[\w.\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]{3,20}$/u;
 
-            await sendEmail(email, "Your Ideate Verification Code", otp);
-            req.session.tempEmail = email;
-            return res.redirect('/verify-otp');
+        if (!usernameRegex.test(cleanUsername)) {
+            return res.render('pages/signup', { 
+                error: 'Username must be 3-20 characters. No spaces allowed!' 
+            });
         }
 
-        // CASE 3: New User (Bilkul Naya)
+        // ✅ 2. UNIQUE USERNAME CHECK (Database index must be unique)
+        const existingUsername = await User.findOne({ username: cleanUsername });
+        if (existingUsername && existingUsername.email !== email.toLowerCase()) {
+            return res.render('pages/signup', { error: 'Username already taken. Try another!' });
+        }
+
+        // ✅ 3. EMAIL EXISTENCE CHECK
+        let user = await User.findOne({ email: email.toLowerCase() });
         const hashedPassword = await bcrypt.hash(password, 12);
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-        user = new User({
-            displayName,
-            email,
-            password: hashedPassword,
-            otp,
-            otpExpires,
-            isVerified: false // 🛑 Abhi Verified False hai
-        });
+        if (user) {
+            if (user.isVerified) {
+                return res.render('pages/signup', { error: 'Email already registered. Try logging in.' });
+            }
+            // Update unverified user details for retry
+            console.log("⚠️ Updating OTP for unverified user...");
+            user.displayName = name;
+            user.username = cleanUsername;
+            user.password = hashedPassword;
+            user.otp = otp;
+            user.otpExpires = otpExpires;
+            await user.save();
+        } else {
+            // New User Creation
+            user = new User({
+                displayName: name,
+                username: cleanUsername,
+                email: email.toLowerCase(),
+                password: hashedPassword,
+                otp,
+                otpExpires,
+                isVerified: false 
+            });
+            await user.save();
+        }
 
-        await user.save();
+        // Bhejo Verification Code
         await sendEmail(email, "Your Ideate Verification Code", otp);
-
-        req.session.tempEmail = email;
+        req.session.tempEmail = email.toLowerCase();
         res.redirect('/verify-otp');
 
     } catch (err) {
-        console.error(err);
-        res.render('pages/signup', { error: 'Something went wrong' });
+        console.error("Signup Error:", err);
+        res.render('pages/signup', { error: 'Something went wrong. Please try again.' });
     }
 };
 
@@ -69,7 +79,6 @@ exports.verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
         const email = req.session.tempEmail;
-
         const user = await User.findOne({ email });
 
         if (!user) return res.redirect('/signup');
@@ -79,45 +88,52 @@ exports.verifyOtp = async (req, res) => {
             return res.render('pages/verifyOtp', { email, error: 'Invalid or Expired OTP' });
         }
 
-        // ✅ Verify Success
+        // Success: Mark verified and Cleanup
         user.isVerified = true;
         user.otp = undefined;       
         user.otpExpires = undefined;
         await user.save();
 
-        // Login User
+        // Auto Login after successful verification
         req.session.userId = user._id;
         req.session.tempEmail = null;
-
         res.redirect('/'); 
 
     } catch (err) {
-        console.error(err);
+        console.error("OTP Error:", err);
         res.render('pages/verifyOtp', { email: req.session.tempEmail, error: 'Verification failed' });
     }
 };
 
-// --- 4. LOGIN (Strict Check) ---
+// --- 4. LOGIN (Universal: Email or Username) ---
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body; 
     try {
-        const user = await User.findOne({ email });
-        if (!user) return res.render('pages/login', { error: 'Invalid email or password' });
+        const searchId = identifier.toLowerCase().trim();
+
+        // ✅ Check if user exists by Email OR Username
+        const user = await User.findOne({ 
+            $or: [{ email: searchId }, { username: searchId }] 
+        });
+        
+        if (!user) {
+            return res.render('pages/login', { error: 'This email or username is not registered.' });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.render('pages/login', { error: 'Invalid email or password' });
+        if (!isMatch) {
+            return res.render('pages/login', { error: 'Incorrect password. Please try again.' });
+        }
 
-        // 🛑 CRITICAL FIX: Agar Verified nahi hai, toh login ROKO
+        // ✅ CRITICAL: OTP Check for unverified users during login attempt
         if (!user.isVerified) {
-            // OTP wapas bhejo taaki woh verify kar sake
             const otp = Math.floor(1000 + Math.random() * 9000).toString();
             user.otp = otp;
             user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
             await user.save();
-            await sendEmail(email, "Verification Code", otp);
+            await sendEmail(user.email, "Verification Code", otp);
             
-            req.session.tempEmail = email;
-            // Unhe OTP page par bhej do (Login page par OTP box nahi dikhega, seedha redirect hoga)
+            req.session.tempEmail = user.email;
             return res.redirect('/verify-otp');
         }
 
@@ -125,8 +141,8 @@ exports.login = async (req, res) => {
         req.session.userId = user._id;
         res.redirect('/');
     } catch (err) {
-        console.error(err);
-        res.render('pages/login', { error: 'Login error' });
+        console.error("Login Error:", err);
+        res.render('pages/login', { error: 'An error occurred during login.' });
     }
 };
 

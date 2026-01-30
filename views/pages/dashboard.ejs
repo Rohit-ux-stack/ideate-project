@@ -34,7 +34,6 @@
 
     <main class="ml-64 flex-1">
         <header class="h-20 border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-30">
-            
             <div class="w-1/3 relative group">
                 <i class="ri-search-line absolute left-4 top-3 text-slate-500 group-focus-within:text-blue-500 transition"></i>
                 <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search ideas or users..." 
@@ -57,19 +56,17 @@
         </header>
 
         <div class="p-8">
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-white mb-2">
-                        <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Trending Innovations' %>
-                    </h2>
-                    <p class="text-slate-500">Discover and support the next big thing.</p>
-                </div>
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">
+                    <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Trending Innovations' %>
+                </h2>
+                <p class="text-slate-500">Discover and support the next big thing.</p>
             </div>
             
             <div id="ideaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <% ideas.forEach(idea => { %>
                     <div class="idea-card bg-slate-900/50 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/30 hover:bg-slate-900 transition-all group relative flex flex-col h-full"
-                         data-search="<%= idea.title.toLowerCase() %> <%= idea.description.toLowerCase() %> <%= idea.author.toLowerCase() %> <%= idea.category.toLowerCase() %>">
+                         data-search="<%= idea.title.toLowerCase() %> <%= idea.description.toLowerCase() %> <%= idea.author.toLowerCase() %> <%= (idea.authorUsername || '').toLowerCase() %> <%= idea.category.toLowerCase() %>">
 
                         <div onclick="window.location.href='/post/<%= idea._id %>'" class="cursor-pointer flex-1">
                             
@@ -82,7 +79,7 @@
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-2" onclick="event.stopPropagation(); window.location.href='/user/<%= idea.authorId %>'">
                                     
-                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden border border-slate-600 cursor-pointer hover:border-blue-500 shrink-0">
+                                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-white overflow-hidden border border-slate-600 cursor-pointer hover:border-blue-500 shrink-0">
                                         <% if (idea.authorImage) { %>
                                             <img src="<%= idea.authorImage %>" class="w-full h-full object-cover">
                                         <% } else { %>
@@ -91,7 +88,8 @@
                                     </div>
                                     
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-slate-300 hover:text-blue-400 transition cursor-pointer"><%= idea.author %></span>
+                                        <span class="text-sm font-bold text-slate-200 leading-tight group-hover:text-blue-400 transition truncate w-32"><%= idea.author %></span>
+                                        <span class="text-[11px] font-medium text-blue-400/80">@<%= idea.authorUsername %></span>
                                         
                                         <% if (user && user._id.toString() !== idea.authorId.toString()) { %>
                                             <button type="button" 
@@ -105,7 +103,7 @@
                                 <span class="text-[10px] font-bold tracking-wider text-blue-400 bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20 uppercase"><%= idea.category %></span>
                             </div>
 
-                            <h3 class="text-xl font-bold text-slate-100 group-hover:text-blue-400 transition mb-3 leading-tight"><%= idea.title %></h3>
+                            <h3 class="text-xl font-bold text-slate-100 mb-2 leading-tight line-clamp-2"><%= idea.title %></h3>
                             <p class="text-slate-400 text-sm mb-4 line-clamp-3 leading-relaxed"><%= idea.description %></p>
                         </div>
 
@@ -113,11 +111,11 @@
                             <div class="flex items-center space-x-4">
                                 <a href="/post/<%= idea._id %>/raise" class="flex items-center space-x-1.5 text-slate-400 hover:text-green-400 transition group/vote">
                                     <i class="ri-arrow-up-circle-line text-xl group-hover/vote:text-green-400"></i>
-                                    <span class="font-mono font-bold"><%= (idea.upvotes || []).length %></span>
+                                    <span class="font-mono font-bold text-sm"><%= idea.upvotesCount %></span>
                                 </a>
                                 <a href="/post/<%= idea._id %>" class="flex items-center space-x-1.5 text-slate-400 hover:text-blue-400 transition">
                                     <i class="ri-chat-3-line text-lg"></i>
-                                    <span class="font-mono font-bold"><%= (idea.comments || []).length %></span>
+                                    <span class="font-mono font-bold text-sm"><%= idea.commentsCount %></span>
                                 </a>
                                 <div class="flex items-center space-x-1.5 text-slate-500">
                                     <i class="ri-eye-line text-lg"></i>
@@ -149,39 +147,29 @@
     <%- include('../partials/postModal') %>
 
     <script>
-        // 1. FOLLOW LOGIC
         async function dashboardToggleFollow(event, btn, userId) {
-            // STOP propagation immediately to prevent card click
             event.preventDefault();
             event.stopPropagation();
-
             try {
                 const res = await fetch(`/follow/${userId}`, {
                     method: 'GET',
                     headers: { 'Accept': 'application/json' }
                 });
-                
                 const data = await res.json();
-                
                 if(data.success) {
                     if(data.isFollowing) {
-                        // Unfollow State
                         btn.innerText = 'Unfollow';
                         btn.className = 'text-[10px] font-bold mt-0.5 text-left w-fit transition outline-none z-20 relative text-slate-500 hover:text-slate-400';
                     } else {
-                        // Follow State
                         btn.innerText = 'Follow';
                         btn.className = 'text-[10px] font-bold mt-0.5 text-left w-fit transition outline-none z-20 relative text-blue-500 hover:text-blue-400';
                     }
                 } else if(data.error === "Login required") {
                     window.location.href = "/login";
                 }
-            } catch(err) {
-                console.error("Follow error:", err);
-            }
+            } catch(err) { console.error("Follow error:", err); }
         }
 
-        // 2. SEARCH LOGIC
         let searchTimeout;
         function handleSearch() {
             const input = document.getElementById('searchInput');
@@ -189,50 +177,38 @@
             const cards = document.querySelectorAll('.idea-card');
             const dropdown = document.getElementById('userSearchResults');
 
-            // Filter Posts locally
             cards.forEach(card => {
                 const searchData = card.getAttribute('data-search');
                 card.style.display = searchData.includes(filter) ? "" : "none";
             });
 
-            // Search Users via API
             clearTimeout(searchTimeout);
             if(filter.length > 1) {
                 searchTimeout = setTimeout(async () => {
                     try {
                         const res = await fetch(`/api/users/search?q=${filter}`);
                         const users = await res.json();
-                        
                         if(users.length > 0) {
                             dropdown.innerHTML = users.map(u => `
                                 <div class="search-item flex items-center gap-3" onclick="window.location.href='/user/${u._id}'">
-                                    ${u.image ? 
-                                        `<img src="${u.image}" class="w-8 h-8 rounded-full object-cover border border-slate-600">` : 
-                                        `<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">${u.displayName.charAt(0)}</div>`
-                                    }
+                                    ${u.image ? `<img src="${u.image}" class="w-8 h-8 rounded-full object-cover border border-slate-600">` : `<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">${u.displayName.charAt(0)}</div>`}
                                     <div>
                                         <p class="text-sm font-bold text-slate-200 hover:text-blue-400">${u.displayName}</p>
-                                        <p class="text-[10px] text-slate-500">User</p>
+                                        <p class="text-[10px] text-slate-500">@${u.username}</p>
                                     </div>
                                 </div>
                             `).join('');
                             dropdown.style.display = 'block';
-                        } else {
-                            dropdown.style.display = 'none';
-                        }
+                        } else { dropdown.style.display = 'none'; }
                     } catch(e) { dropdown.style.display = 'none'; }
                 }, 300);
-            } else {
-                dropdown.style.display = 'none';
-            }
+            } else { dropdown.style.display = 'none'; }
         }
 
         document.addEventListener('click', (e) => {
             const dropdown = document.getElementById('userSearchResults');
             const input = document.getElementById('searchInput');
-            if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
-                dropdown.style.display = 'none';
-            }
+            if (dropdown && !dropdown.contains(e.target) && e.target !== input) { dropdown.style.display = 'none'; }
         });
     </script>
 </body>

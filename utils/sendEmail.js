@@ -12,7 +12,7 @@ const sendEmail = async (email, subject, text) => {
 
         // Email bhejo
         await transporter.sendMail({
-            from: '"Ideate Team" <rohitbanerjee847@gmail.com>', // ✅ From address must match authenticated user
+            from: '"Ideate Team" <rohitbanerjee@gmail.com>', // ✅ From address must match authenticated user
             to: email, 
             subject: subject,
             text: text, 

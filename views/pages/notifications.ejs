@@ -12,19 +12,23 @@
             <% if (notifications && notifications.length > 0) { %>
                 <% notifications.forEach(notif => { %>
                     <div onclick="markRead(this, '<%= notif._id %>', '<%= notif.link %>')" 
-                         class="cursor-pointer block border p-4 rounded-xl transition flex items-center gap-4 relative
-                         <%= notif.read ? 'bg-slate-900 border-slate-800' : 'bg-blue-900/10 border-blue-500/30' %>">
+                         class="cursor-pointer block border p-4 rounded-xl transition flex items-center gap-4 relative group
+                         <%= notif.read ? 'bg-slate-900 border-slate-800' : 'bg-blue-900/10 border-blue-500/30' %>
+                         <%= notif.type === 'mention' && !notif.read ? 'border-purple-500/50 bg-purple-500/5' : '' %>">
                         
                         <% if (notif.senders && notif.senders.length > 0 && notif.senders[0].image) { %>
                             <div class="relative w-12 h-12 shrink-0">
                                 <img src="<%= notif.senders[0].image %>" class="w-12 h-12 rounded-full object-cover border border-slate-700">
+                                
                                 <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] border border-[#0F172A]
                                     <%= notif.type === 'raise' ? 'bg-green-500 text-white' : 
                                        notif.type === 'follow' ? 'bg-blue-500 text-white' : 
+                                       notif.type === 'mention' ? 'bg-purple-500 text-white' : 
                                        'bg-yellow-500 text-white' %>">
+                                    
                                     <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
                                                  notif.type === 'follow' ? 'ri-user-add-fill' : 
-                                                 notif.type === 'mention' ? 'ri-at-line' :
+                                                 notif.type === 'mention' ? 'ri-at-line' : 
                                                  'ri-chat-3-fill' %>"></i>
                                 </div>
                             </div>
@@ -32,10 +36,12 @@
                             <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0
                                 <%= notif.type === 'raise' ? 'bg-green-500/10 text-green-500' : 
                                    notif.type === 'follow' ? 'bg-blue-500/10 text-blue-500' : 
+                                   notif.type === 'mention' ? 'bg-purple-500/10 text-purple-500' : 
                                    'bg-yellow-500/10 text-yellow-500' %>">
+                                
                                 <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
                                              notif.type === 'follow' ? 'ri-user-add-fill' : 
-                                             notif.type === 'mention' ? 'ri-at-line' :
+                                             notif.type === 'mention' ? 'ri-at-line' : 
                                              'ri-chat-3-fill' %>"></i>
                             </div>
                         <% } %>
@@ -43,7 +49,13 @@
                         <div class="flex-1">
                             <p class="text-sm text-slate-300">
                                 <span class="font-bold text-white"><%= notif.latestSenderName %></span> 
-                                <%= notif.message %>
+                                
+                                <% if(notif.type === 'mention') { %>
+                                    <span class="text-purple-400 font-medium">mentioned you</span> in a comment:
+                                    <span class="italic text-slate-400">"<%= notif.message.split(': "')[1] || 'View comment' %>"</span>
+                                <% } else { %>
+                                    <%= notif.message %>
+                                <% } %>
                             </p>
                             <span class="text-xs text-slate-600"><%= notif.updatedAt.toLocaleDateString() %></span>
                         </div>
@@ -59,7 +71,9 @@
                         <% } %>
 
                         <% if (!notif.read) { %>
-                            <span class="w-2 h-2 bg-blue-500 rounded-full absolute top-4 right-4"></span>
+                            <span class="w-2 h-2 rounded-full absolute top-4 right-4 
+                                <%= notif.type === 'mention' ? 'bg-purple-500' : 'bg-blue-500' %>">
+                            </span>
                         <% } %>
                     </div>
                 <% }) %>
@@ -74,11 +88,18 @@
 
     <script>
         async function markRead(el, id, link) {
-            el.classList.remove('bg-blue-900/10', 'border-blue-500/30');
+            // Visual Update
+            el.classList.remove('bg-blue-900/10', 'border-blue-500/30', 'bg-purple-500/5', 'border-purple-500/50');
             el.classList.add('bg-slate-900', 'border-slate-800');
+            
+            // Remove Dot
             const dot = el.querySelector('.absolute.right-4');
             if(dot) dot.remove();
+
+            // API Call
             await fetch(`/api/notifications/read/${id}`, { method: 'POST' });
+            
+            // Redirect
             if(link) window.location.href = link;
         }
     </script>

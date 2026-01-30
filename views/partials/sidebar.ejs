@@ -58,21 +58,26 @@
 
     <% if (user) { %>
         <div class="p-4 border-t border-slate-800 bg-[#0F172A] shrink-0">
-            <a href="/user/<%= user._id %>" class="flex items-center space-x-3 group p-2 rounded-xl hover:bg-slate-800/50 transition">
-                 <% if (user.image) { %>
-                     <img src="<%= user.image %>" class="w-10 h-10 rounded-full object-cover border-2 border-slate-700 group-hover:border-blue-500 transition">
-                 <% } else { %>
-                     <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border-2 border-slate-700 group-hover:border-blue-500 transition">
-                         <%= user.displayName.charAt(0) %>
+            <div class="flex items-center justify-between group">
+                <a href="/user/<%= user._id %>" class="flex items-center space-x-3 flex-1 min-w-0">
+                     <% if (user.image) { %>
+                         <img src="<%= user.image %>" class="w-10 h-10 rounded-full object-cover border-2 border-slate-700 group-hover:border-blue-500 transition shrink-0">
+                     <% } else { %>
+                         <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border-2 border-slate-700 group-hover:border-blue-500 transition shrink-0">
+                             <%= user.displayName.charAt(0) %>
+                         </div>
+                     <% } %>
+                     
+                     <div class="overflow-hidden">
+                         <p class="text-sm font-bold text-white group-hover:text-blue-400 transition truncate"><%= user.displayName %></p>
+                         <p class="text-[11px] text-blue-400 font-medium truncate">@<%= user.username %></p>
                      </div>
-                 <% } %>
-                 
-                 <div class="overflow-hidden">
-                     <p class="text-sm font-bold text-white group-hover:text-blue-400 transition truncate"><%= user.displayName %></p>
-                     <p class="text-xs text-slate-500">View Profile</p>
-                 </div>
-            </a>
-            <a href="/logout" class="block mt-2 text-center text-xs text-red-400 font-bold hover:text-red-300 py-2"><i class="ri-logout-box-line"></i> LOGOUT</a>
+                </a>
+                
+                <a href="/logout" class="p-2 text-slate-500 hover:text-red-400 transition" title="Logout">
+                    <i class="ri-logout-box-r-line text-lg"></i>
+                </a>
+            </div>
         </div>
     <% } %>
 </aside>
@@ -100,7 +105,7 @@
     setInterval(checkNotifications, 10000);
 
     window.toggleFollow = async function(btn, userId) {
-        if(event) { event.preventDefault(); event.stopPropagation(); }
+        if(typeof event !== 'undefined') { event.preventDefault(); event.stopPropagation(); }
         try {
             const res = await fetch(`/follow/${userId}`);
             const data = await res.json();
@@ -108,15 +113,15 @@
                 const span = btn.querySelector('span') || btn; 
                 const icon = btn.querySelector('i');
                 if(data.isFollowing) {
-                    if(span !== btn) span.innerText = 'Unfollow'; else if(btn.innerText.trim() !== '') btn.innerText = 'Unfollow';
+                    if(span !== btn) span.innerText = 'Unfollow';
                     if(icon) icon.className = 'ri-user-unfollow-line';
-                    btn.classList.replace('bg-blue-600', 'bg-slate-700');
-                    btn.classList.replace('text-white', 'text-slate-300');
+                    btn.classList.add('bg-slate-700', 'text-slate-300');
+                    btn.classList.remove('bg-blue-600', 'text-white');
                 } else {
-                    if(span !== btn) span.innerText = 'Follow'; else if(btn.innerText.trim() !== '') btn.innerText = 'Follow';
+                    if(span !== btn) span.innerText = 'Follow';
                     if(icon) icon.className = 'ri-user-add-line';
-                    btn.classList.replace('bg-slate-700', 'bg-blue-600');
-                    btn.classList.replace('text-slate-300', 'text-white');
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-slate-700', 'text-slate-300');
                 }
                 const countSpan = document.getElementById('followerCount');
                 if(countSpan) countSpan.innerText = data.newCount;

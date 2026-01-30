@@ -2,7 +2,7 @@ const Idea = require('../models/Idea');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-// --- HELPER: Process Images & Attach Author Image ---
+// --- HELPER: Process Images & Attach Author Info ---
 const processIdeasData = (ideas) => {
     return ideas.map(idea => {
         let i = idea.toObject ? idea.toObject() : idea;
@@ -15,25 +15,24 @@ const processIdeasData = (ideas) => {
             }).filter(img => img !== null);
         } else { i.images = []; }
 
-        // 2. Extract Author Image safely
+        // 2. Extract Author Info safely
         if (i.authorId && i.authorId.image) {
             i.authorImage = i.authorId.image;
+            i.authorUsername = i.authorId.username; 
             i.authorId = i.authorId._id;
         } else if (i.authorId && i.authorId._id) {
+             i.authorUsername = i.authorId.username;
              i.authorId = i.authorId._id;
         }
-
         return i;
     });
 };
 
 // --- NOTIFICATION SYSTEM ---
-
 const createNotification = async (targetUserId, type, contextMessage, link, senderId, senderName) => {
     try {
         if (targetUserId.toString() === senderId.toString()) return; 
         const user = await User.findById(targetUserId);
-        
         const existingNotifIndex = user.notifications.findIndex(n => n.type === type && n.link === link && !n.read);
 
         if (existingNotifIndex > -1) {
@@ -64,13 +63,12 @@ const handleMentions = async (text, ideaId, senderId, senderName) => {
     if (!matches) return;
     for (const match of matches) {
         const username = match.substring(1); 
-        const targetUser = await User.findOne({ displayName: username });
+        const targetUser = await User.findOne({ username: username.toLowerCase() });
         if (targetUser) await createNotification(targetUser._id, 'mention', `mentioned you in a comment`, `/post/${ideaId}`, senderId, senderName);
     }
 };
 
 // --- API HANDLERS ---
-
 exports.checkNotifications = async (req, res) => {
     if (!req.session.userId) return res.json({ count: 0 });
     try {
@@ -90,19 +88,16 @@ exports.markNotificationRead = async (req, res) => {
 
 exports.searchUsers = async (req, res) => {
     try {
-        if (req.query.find) {
-            const targetUser = await User.findOne({ displayName: req.query.find });
-            if (targetUser) return res.redirect(`/user/${targetUser._id}`);
-            return res.redirect(req.get('Referer') || '/');
-        }
         const search = req.query.q;
         if (!search) return res.json([]);
-        const users = await User.find({ displayName: { $regex: search, $options: 'i' } }).select('displayName _id image').limit(5);
+        const users = await User.find({ 
+            $or: [
+                { displayName: { $regex: search, $options: 'i' } },
+                { username: { $regex: search, $options: 'i' } }
+            ]
+        }).select('displayName username _id image').limit(5);
         res.json(users);
-    } catch (err) { 
-        if (req.query.find) return res.redirect('/');
-        res.json([]); 
-    }
+    } catch (err) { res.json([]); }
 };
 
 // --- PAGE CONTROLLERS ---
@@ -117,18 +112,26 @@ exports.getDashboard = async (req, res) => {
 
         if (currentUserId && filterType === 'home') {
             const currentUser = await User.findById(currentUserId);
-            const followingIds = currentUser.following;
-            followingIds.push(currentUserId);
-            query.authorId = { $in: followingIds };
+            if (currentUser) {
+                const followingIds = currentUser.following;
+                followingIds.push(currentUserId);
+                query.authorId = { $in: followingIds };
+            }
         } 
         
-        const rawIdeas = await Idea.find(query).sort({ createdAt: -1 }).populate('authorId', 'displayName image');
+        const rawIdeas = await Idea.find(query).sort({ createdAt: -1 })
+            .populate('authorId', 'displayName username image')
+            .populate('upvotes', '_id') 
+            .populate('comments.userId', 'username'); 
+
+        const cleanIdeas = rawIdeas.filter(idea => idea.authorId).map(idea => {
+            let i = idea.toObject();
+            i.upvotesCount = idea.upvotes.filter(u => u !== null).length;
+            i.commentsCount = idea.comments.filter(c => c.userId !== null).length;
+            return i;
+        });
         
-        // Filter out ideas where author doesn't exist anymore (Cleanup)
-        const validIdeas = rawIdeas.filter(idea => idea.authorId);
-        
-        const ideas = processIdeasData(validIdeas);
-        
+        const ideas = processIdeasData(cleanIdeas);
         res.render('pages/dashboard', { ideas, user: res.locals.user, currentCategory: category, currentFeed: filterType, pageTitle: filterType === 'explore' ? 'Explore Ideas' : 'My Feed' });
     } catch (err) { res.status(500).send("Error"); }
 };
@@ -143,142 +146,101 @@ exports.getPostById = async (req, res) => {
         }
 
         const idea = await Idea.findById(postId)
-            .populate('authorId', 'displayName image')
-            .populate({ path: 'comments.userId', select: 'displayName image' })
-            .populate({ path: 'comments.replies.userId', select: 'displayName image' });
+            .populate('authorId', 'displayName username image')
+            .populate({ path: 'comments.userId', select: 'displayName username image' })
+            .populate({ path: 'comments.replies.userId', select: 'displayName username image' });
 
-        if (!idea) return res.status(404).send("Not Found");
-        
-        // --- CLEANUP LOGIC: Post Author Deleted? ---
-        if (!idea.authorId) return res.redirect('/'); 
+        if (!idea || !idea.authorId) return res.redirect('/'); 
 
-        // --- CLEANUP LOGIC: Filter Comments & Replies ---
-        // Agar comment karne wala user null hai (deleted), toh comment hata do
+        // Cleanup Comments
         idea.comments = idea.comments.filter(c => c.userId);
-
-        // Har comment ke andar replies bhi check karo
-        idea.comments.forEach(c => {
-            c.replies = c.replies.filter(r => r.userId);
-        });
+        idea.comments.forEach(c => { c.replies = c.replies.filter(r => r.userId); });
 
         let ideaObj = idea.toObject();
-        
-        // PFP Logic
-        if(idea.authorId && idea.authorId.image) {
-            ideaObj.authorImage = idea.authorId.image;
-            ideaObj.authorId = idea.authorId._id;
+
+        // ✅ FIXED LOGIC: Username hamesha extract hoga
+        if (idea.authorId) {
+            ideaObj.authorUsername = idea.authorId.username || 'unknown'; // Username set karo
+            ideaObj.authorImage = idea.authorId.image || null;            // Image set karo (null if missing)
+            ideaObj.authorId = idea.authorId._id;                         // ID flatten karo
         }
 
+        // Handle Post Images
         if (ideaObj.images && ideaObj.images.length > 0) {
             ideaObj.images = ideaObj.images.map(img => ({ src: `data:${img.type};base64,${img.content.toString('base64')}` }));
         } else { ideaObj.images = []; }
 
         res.render('pages/postDetail', { idea: ideaObj, user: res.locals.user });
-    } catch (err) { res.redirect('/'); }
-};
-
-exports.getUserProfile = async (req, res) => {
-    try {
-        // 1. User ko dhoondo aur Followers/Following ko populate karo
-        let targetUser = await User.findById(req.params.id)
-            .populate('followers', '_id') // Sirf ID check karenge existence ke liye
-            .populate('following', '_id');
-
-        if (!targetUser) return res.redirect('/'); 
-
-        // 2. --- SELF HEALING LOGIC START ---
-        // Hum check karenge ki populate hone ke baad kitne NULL mile (matlab deleted users)
-        
-        const validFollowers = targetUser.followers.filter(f => f !== null);
-        const validFollowing = targetUser.following.filter(f => f !== null);
-
-        // Agar kachra mila (Counts match nahi kar rahe), toh Database update karo
-        if (validFollowers.length !== targetUser.followers.length || validFollowing.length !== targetUser.following.length) {
-            targetUser.followers = validFollowers;
-            targetUser.following = validFollowing;
-            await targetUser.save(); // ✨ Jadoo: Invalid IDs database se hamesha ke liye gayab!
-            console.log("System cleaned up deleted users from profile.");
-        }
-        // 3. --- SELF HEALING LOGIC END ---
-
-        // Ab Ideas fetch karo
-        const rawIdeas = await Idea.find({ authorId: req.params.id })
-            .sort({ createdAt: -1 })
-            .populate('authorId', 'image');
-
-        const ideas = processIdeasData(rawIdeas);
-
-        res.render('pages/userProfile', { 
-            targetUser, // Ab ye clean user object jayega
-            ideas, 
-            user: res.locals.user, 
-            pageTitle: `${targetUser.displayName}'s Profile` 
-        });
-
     } catch (err) { 
-        console.error(err);
+        console.error("Post Detail Error:", err);
         res.redirect('/'); 
     }
 };
 
+exports.getUserProfile = async (req, res) => {
+    try {
+        let targetUser = await User.findById(req.params.id).populate('followers', '_id').populate('following', '_id');
+        if (!targetUser) return res.redirect('/'); 
+
+        targetUser.followers = targetUser.followers.filter(f => f !== null);
+        targetUser.following = targetUser.following.filter(f => f !== null);
+        await targetUser.save();
+
+        const rawIdeas = await Idea.find({ authorId: req.params.id }).sort({ createdAt: -1 }).populate('authorId', 'username image');
+        const ideas = processIdeasData(rawIdeas);
+        const displayHandle = targetUser.username ? `@${targetUser.username}` : '';
+
+        res.render('pages/userProfile', { targetUser, ideas, user: res.locals.user, pageTitle: `${targetUser.displayName} ${displayHandle}` });
+    } catch (err) { res.redirect('/'); }
+};
+
 exports.getBookmarks = async (req, res) => {
-    if(!req.session.userId) return res.redirect('/login');
+    if(!req.session.userId) return res.render('pages/login', { error: "Please login to view bookmarks" });
     const user = await User.findById(req.session.userId).populate({
-            path: 'bookmarks',
-            populate: { path: 'authorId', select: 'displayName image' }
-        });
-        
-    // Clean deleted ideas
-    const validBookmarks = (user.bookmarks || []).filter(b => b.authorId);
-    
+        path: 'bookmarks',
+        populate: { path: 'authorId', select: 'displayName username image' }
+    });
+    const validBookmarks = (user.bookmarks || []).filter(b => b && b.authorId);
     res.render('pages/dashboard', { ideas: processIdeasData(validBookmarks), user: res.locals.user, currentCategory: 'Bookmarks', pageTitle: 'Saved' });
 };
 
 exports.getActivity = async (req, res) => {
-    if(!req.session.userId) return res.redirect('/login');
-    const raw = await Idea.find({ authorId: req.session.userId }).sort({createdAt: -1}).populate('authorId', 'displayName image');
+    if(!req.session.userId) return res.render('pages/login', { error: "Please login to view activity" });
+    const raw = await Idea.find({ authorId: req.session.userId }).sort({createdAt: -1}).populate('authorId', 'displayName username image');
     res.render('pages/dashboard', { ideas: processIdeasData(raw), user: res.locals.user, currentCategory: 'Activity', pageTitle: 'My Activity' });
 };
 
 exports.getAnalytics = async (req, res) => {
-    if(!req.session.userId) return res.redirect('/login');
-    const myIdeas = await Idea.find({ authorId: req.session.userId }).populate('authorId', 'displayName image');
+    if(!req.session.userId) return res.render('pages/login', { error: "Please login to view analytics" });
+    const myIdeas = await Idea.find({ authorId: req.session.userId }).populate('authorId', 'displayName username image');
     const stats = { totalViews: myIdeas.reduce((a,c)=>a+c.views,0), totalUpvotes: myIdeas.reduce((a,c)=>a+c.upvotes.length,0), totalComments: myIdeas.reduce((a,c)=>a+c.comments.length,0), ideaCount: myIdeas.length };
     res.render('pages/analytics', { user: res.locals.user, stats, ideas: processIdeasData(myIdeas) });
 };
 
-// --- CONNECTIONS (CLEANUP ADDED) ---
 exports.getConnections = async (req, res) => {
     try {
         const type = req.params.type; 
-        const targetUser = await User.findById(req.params.id).populate(type, 'displayName image bio followers');
+        const targetUser = await User.findById(req.params.id).populate(type, 'displayName username image bio followers');
         if (!targetUser) return res.redirect('/');
-        
-        // CLEANUP: Filter out null users (deleted accounts)
         const cleanList = targetUser[type].filter(u => u && u._id);
-
         res.render('pages/connections', { user: res.locals.user, targetUser, list: cleanList, type, pageTitle: `${targetUser.displayName}'s ${type}` });
     } catch (err) { res.redirect('back'); }
 };
 
 exports.getNotifications = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to view notifications" });
     try {
-        const user = await User.findById(req.session.userId).populate({ path: 'notifications.senders', select: 'displayName image _id' });
-        
-        // Cleanup Senders in Notifications if user deleted
-        user.notifications.forEach(n => {
-            n.senders = n.senders.filter(s => s); // Remove null senders
-        });
-
+        const user = await User.findById(req.session.userId).populate({ path: 'notifications.senders', select: 'displayName username image _id' });
+        user.notifications.forEach(n => { n.senders = n.senders.filter(s => s); });
         const sortedNotifs = user.notifications.sort((a, b) => b.updatedAt - a.updatedAt);
         res.render('pages/notifications', { user: res.locals.user, notifications: sortedNotifs, pageTitle: 'Notifications' });
     } catch (err) { res.redirect('/'); }
 };
 
-// --- ACTIONS ---
+// --- ACTIONS (WITH FORCED LOGIN CHECKS) ---
 
 exports.followUser = async (req, res) => {
+    // NOTE: Frontend JS handles the redirect for this specific JSON error
     if (!req.session.userId) return res.json({ error: "Login required" });
     try {
         const targetUserId = req.params.id;
@@ -287,7 +249,7 @@ exports.followUser = async (req, res) => {
 
         const currentUser = await User.findById(currentUserId);
         const targetUser = await User.findById(targetUserId);
-        if(!targetUser) return res.json({ success: false }); // User not found
+        if(!targetUser) return res.json({ success: false });
 
         let isFollowing = false;
         if (currentUser.following.includes(targetUserId)) {
@@ -296,7 +258,7 @@ exports.followUser = async (req, res) => {
         } else {
             currentUser.following.push(targetUserId);
             targetUser.followers.push(currentUserId);
-            await createNotification(targetUserId, 'follow', 'started following you', `/user/${currentUserId}`, currentUserId, currentUser.displayName);
+            await createNotification(targetUserId, 'follow', 'started following you', `/user/${currentUserId}`, currentUserId, `@${currentUser.username}`);
             isFollowing = true;
         }
         await currentUser.save();
@@ -306,18 +268,28 @@ exports.followUser = async (req, res) => {
 };
 
 exports.postComment = async (req, res) => {
-    if (!req.session.userId) return res.render('pages/login', { error: "Login required!" });
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to comment" });
     try {
-        const text = req.body.comment;
-        const idea = await Idea.findByIdAndUpdate(req.params.id, { $push: { comments: { userId: req.session.userId, user: res.locals.user.displayName, text } } }, { new: true });
-        await createNotification(idea.authorId, 'comment', `commented on your idea`, `/post/${idea._id}`, req.session.userId, res.locals.user.displayName);
-        await handleMentions(text, idea._id, req.session.userId, res.locals.user.displayName);
-        res.redirect(`/post/${req.params.id}`);
+        const { comment } = req.body;
+        const postId = req.params.id;
+        const userId = req.session.userId;
+        const post = await Idea.findById(postId);
+        if (!post) return res.redirect('/'); 
+
+        const newComment = { userId, user: res.locals.user.displayName, text: comment, createdAt: new Date() };
+        post.comments.push(newComment);
+        await post.save();
+
+        if (post.authorId.toString() !== userId) {
+            await createNotification(post.authorId, 'comment', `commented on your idea`, `/post/${postId}`, userId, `@${res.locals.user.username}`);
+        }
+        await handleMentions(comment, postId, userId, `@${res.locals.user.username}`);
+        res.redirect(`/post/${postId}`);
     } catch (err) { res.redirect('/'); }
 };
 
 exports.replyToComment = async (req, res) => {
-    if (!req.session.userId) return res.render('pages/login', { error: "Login required!" });
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to reply" });
     try {
         const { id, commentId } = req.params;
         const text = req.body.reply;
@@ -326,22 +298,51 @@ exports.replyToComment = async (req, res) => {
         if (comment) {
             comment.replies.push({ userId: req.session.userId, user: res.locals.user.displayName, text });
             await idea.save();
-            await createNotification(comment.userId, 'reply', `replied to your comment`, `/post/${id}`, req.session.userId, res.locals.user.displayName);
-            await handleMentions(text, id, req.session.userId, res.locals.user.displayName);
+            await createNotification(comment.userId, 'reply', `replied to your comment`, `/post/${id}`, req.session.userId, `@${res.locals.user.username}`);
+            await handleMentions(text, id, req.session.userId, `@${res.locals.user.username}`);
         }
         res.redirect(`/post/${id}`);
     } catch (err) { res.redirect('back'); }
 };
 
+exports.updateComment = async (req, res) => {
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
+    try {
+        const { id, commentId } = req.params;
+        const { text } = req.body; 
+        const post = await Idea.findById(id);
+        const comment = post.comments.id(commentId);
+        if (comment && comment.userId.toString() === req.session.userId) {
+            comment.text = text;
+            await post.save();
+        }
+        res.redirect(`/post/${id}`);
+    } catch (err) { res.redirect(`/post/${req.params.id}`); }
+};
+
+exports.deleteComment = async (req, res) => {
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
+    try {
+        const { id, commentId } = req.params;
+        const userId = req.session.userId;
+        const post = await Idea.findById(id);
+        const comment = post.comments.id(commentId);
+        if (comment && (comment.userId.toString() === userId || post.authorId.toString() === userId)) {
+            await Idea.findByIdAndUpdate(id, { $pull: { comments: { _id: commentId } } });
+        }
+        res.redirect(`/post/${id}`);
+    } catch (err) { res.redirect(`/post/${req.params.id}`); }
+};
+
 exports.raiseIdea = async (req, res) => {
-    if (!req.session.userId) return res.render('pages/login', { error: "Login required!" });
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to raise an idea" });
     try {
         const idea = await Idea.findById(req.params.id);
         const userId = req.session.userId;
         if (idea.upvotes.includes(userId)) { idea.upvotes.pull(userId); } 
         else { 
             idea.upvotes.push(userId);
-            await createNotification(idea.authorId, 'raise', `raised your idea`, `/post/${idea._id}`, userId, res.locals.user.displayName);
+            await createNotification(idea.authorId, 'raise', `raised your idea`, `/post/${idea._id}`, userId, `@${res.locals.user.username}`);
         }
         await idea.save();
         res.redirect(req.get('Referer') || '/');
@@ -349,7 +350,7 @@ exports.raiseIdea = async (req, res) => {
 };
 
 exports.bookmarkIdea = async (req, res) => {
-    if (!req.session.userId) return res.render('pages/login', { error: "Login required!" });
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to bookmark" });
     const user = await User.findById(req.session.userId);
     if (user.bookmarks.includes(req.params.id)) user.bookmarks.pull(req.params.id);
     else user.bookmarks.push(req.params.id);
@@ -358,8 +359,8 @@ exports.bookmarkIdea = async (req, res) => {
 };
 
 exports.postIdea = async (req, res) => {
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to post" });
     try {
-        if (!req.session.userId) return res.redirect('/login');
         const newIdea = new Idea({ ...req.body, author: res.locals.user.displayName, authorId: req.session.userId, images: [] });
         if (req.files) req.files.forEach(f => newIdea.images.push({ content: f.buffer, type: f.mimetype }));
         await newIdea.save();
@@ -368,7 +369,7 @@ exports.postIdea = async (req, res) => {
 };
 
 exports.updatePost = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
     const idea = await Idea.findById(req.params.id);
     if (idea.authorId.toString() !== req.session.userId) return res.redirect('/');
     idea.title = req.body.title; idea.description = req.body.description; idea.category = req.body.category;
@@ -380,30 +381,25 @@ exports.updatePost = async (req, res) => {
 };
 
 exports.deleteIdea = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
     const idea = await Idea.findById(req.params.id);
     if (idea && idea.authorId.toString() === req.session.userId) await Idea.findByIdAndDelete(req.params.id);
     res.redirect('/'); 
 };
 
-exports.deleteComment = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    const { id, commentId } = req.params;
-    await Idea.findByIdAndUpdate(id, { $pull: { comments: { _id: commentId, userId: req.session.userId } } });
-    res.redirect(`/post/${id}`);
-};
-
 exports.getEditPost = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
     const idea = await Idea.findById(req.params.id);
     if (idea.authorId.toString() !== req.session.userId) return res.redirect('/');
     res.render('pages/editPost', { idea, user: res.locals.user });
 };
 
 exports.getSettings = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Please login to view settings" });
     let msg = null;
     if (req.query.status === 'success') msg = { type: 'success', text: 'Profile updated!' };
+    if (req.query.status === 'name_error') msg = { type: 'error', text: 'Invalid Username (3-20 chars, no spaces).' };
+    if (req.query.status === 'name_taken') msg = { type: 'error', text: 'Username already taken!' };
     if (req.query.status === 'pass_success') msg = { type: 'success', text: 'Password changed successfully!' };
     if (req.query.status === 'pass_error') msg = { type: 'error', text: 'Incorrect current password.' };
     res.render('pages/settings', { user: res.locals.user, message: msg });
@@ -411,219 +407,189 @@ exports.getSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
+    
     try {
-        const { 
-            displayName, bio, title, location, skills, dob, phone, // Personal Info
-            linkedin, github, twitter, website, // Socials
-            emailNotifs, publicProfile, showEmail, showPhone, showDob, // Privacy Toggles
-            theme, textSize // Appearance
+        // 1. Destructure all text fields
+        let { 
+            displayName, 
+            username, 
+            bio, 
+            title, 
+            location, 
+            skills, 
+            dob, 
+            phone, 
+            linkedin, 
+            github, 
+            twitter, 
+            website, 
+            emailNotifs, 
+            publicProfile, 
+            showEmail, 
+            showPhone, 
+            showDob, 
+            theme, 
+            textSize 
         } = req.body;
 
-        // Skills Logic
-        let skillsArray = [];
-        if (skills) {
-            skillsArray = skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        // 2. Validate & Clean Username (if provided)
+        // If username is not editable in settings, remove this block or keep it for updates
+        let cleanUsername = username ? username.toLowerCase().replace(/\s/g, '') : undefined;
+        
+        if (cleanUsername) {
+            const usernameRegex = /^[\w.\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]{3,20}$/u;
+            
+            if (!usernameRegex.test(cleanUsername)) {
+                return res.redirect('/settings?status=name_error');
+            }
+
+            // Check if username is taken by someone else
+            const existing = await User.findOne({ username: cleanUsername, _id: { $ne: req.session.userId } });
+            if (existing) {
+                return res.redirect('/settings?status=name_taken');
+            }
         }
 
+        // 3. Prepare Skills Array
+        let skillsArray = skills ? skills.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
+
+        // 4. Construct Update Object
         const updateData = { 
-            displayName, bio, title, location, dob, phone,
+            displayName,
+            // Only update username if it's present and valid
+            ...(cleanUsername && { username: cleanUsername }), 
+            bio, 
+            title, 
+            location, 
+            dob, 
+            phone,
             skills: skillsArray,
             contacts: { linkedin, github, website, twitter },
-            
-            // Privacy Object Update
-            privacy: {
-                publicProfile: publicProfile === 'on',
-                showEmail: showEmail === 'on',
-                showPhone: showPhone === 'on',
-                showDob: showDob === 'on'
+            privacy: { 
+                publicProfile: publicProfile === 'on', 
+                showEmail: showEmail === 'on', 
+                showPhone: showPhone === 'on', 
+                showDob: showDob === 'on' 
             },
-
-            // Preferences Object Update
-            preferences: {
-                emailNotifs: emailNotifs === 'on',
-                theme: theme,
-                textSize: textSize
+            preferences: { 
+                emailNotifs: emailNotifs === 'on', 
+                theme, 
+                textSize 
             }
         };
 
-        if (req.file) {
-            updateData.imageContent = req.file.buffer;
-            updateData.imageType = req.file.mimetype;
-            updateData.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        // 5. Handle File Uploads (Images)
+        if (req.files) {
+            // Handle Profile Image
+            if (req.files['profileImage'] && req.files['profileImage'][0]) {
+                const file = req.files['profileImage'][0];
+                // Convert buffer to base64 string
+                const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+                updateData.image = base64Image;
+            }
+
+            // Handle Banner Image
+            if (req.files['bannerImage'] && req.files['bannerImage'][0]) {
+                const file = req.files['bannerImage'][0];
+                // Convert buffer to base64 string
+                const base64Banner = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+                updateData.bannerImage = base64Banner;
+            }
         }
 
+        // 6. Execute Update
         await User.findByIdAndUpdate(req.session.userId, { $set: updateData });
+        
         res.redirect('/settings?status=success');
+
     } catch (err) { 
-        console.error(err);
+        console.error("Settings Update Error:", err);
         res.redirect('/settings?status=error'); 
     }
 };
 
 exports.changePassword = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
     try {
         const { currentPassword, newPassword } = req.body;
         const user = await User.findById(req.session.userId);
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!isMatch) { return res.redirect('/settings?status=pass_error'); }
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
-        user.password = hashedPassword;
+        if (!(await bcrypt.compare(currentPassword, user.password))) return res.redirect('/settings?status=pass_error');
+        user.password = await bcrypt.hash(newPassword, 12);
         await user.save();
         res.redirect('/settings?status=pass_success');
     } catch (err) { res.redirect('/settings?status=error'); }
 };
 
-// --- DELETE ACCOUNT (COMPLETE CLEANUP) ---
 exports.deleteAccount = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+    if (!req.session.userId) return res.render('pages/login', { error: "Login required" });
     try {
         const userId = req.session.userId;
-        
-        // 1. Delete all ideas by this user
         await Idea.deleteMany({ authorId: userId });
-        
-        // 2. Remove user from everyone's Following & Followers lists
         await User.updateMany({}, { $pull: { followers: userId, following: userId } });
-        
-        // 3. Delete the user
         await User.findByIdAndDelete(userId);
-        
         req.session.destroy(() => { res.redirect('/'); });
     } catch (err) { res.redirect('/settings'); }
-};
+}
 
-exports.getLogin = (req, res) => res.render('pages/login', { error: null });
-exports.postLogin = async (req, res) => {
-    const user = await User.findOne({ email: req.body.email });
-    if (user && await bcrypt.compare(req.body.password, user.password)) { req.session.userId = user._id; res.redirect('/'); }
-    else res.render('pages/login', { error: "Invalid creds" });
-};
-exports.getSignup = (req, res) => res.render('pages/signup', { error: null });
-exports.postSignup = async (req, res) => {
-    if(await User.findOne({email: req.body.email})) return res.render('pages/signup', { error: "Exists" });
-    const hp = await bcrypt.hash(req.body.password, 12);
-    await new User({ ...req.body, password: hp }).save(); res.redirect('/login');
-};
-
-// --- LEADERBOARD & STATIC PAGES ---
-
-// 1. Get Hall of Fame
 exports.getLeaderboard = async (req, res) => {
     try {
         const leaderboard = await Idea.aggregate([
-            { $group: { 
-                _id: "$authorId", 
-                totalUpvotes: { $sum: { $size: "$upvotes" } },
-                totalIdeas: { $sum: 1 },
-                authorName: { $first: "$author" }
-            }},
-            { $sort: { totalUpvotes: -1 } }, 
-            { $limit: 10 } 
+            { $group: { _id: "$authorId", totalUpvotes: { $sum: { $size: "$upvotes" } }, totalIdeas: { $sum: 1 }, authorName: { $first: "$author" } }},
+            { $sort: { totalUpvotes: -1 } }, { $limit: 10 } 
         ]);
-
-        await User.populate(leaderboard, { path: "_id", select: "displayName image bio" });
-        
-        // CLEANUP: Filter out null users (deleted accounts)
+        await User.populate(leaderboard, { path: "_id", select: "displayName username image bio" });
         const cleanLeaderboard = leaderboard.filter(u => u._id);
-
-        res.render('pages/leaderboard', { 
-            users: cleanLeaderboard, 
-            user: res.locals.user, 
-            pageTitle: 'Hall of Fame 🏆' 
-        });
-    } catch (err) { console.error(err); res.redirect('/'); }
+        res.render('pages/leaderboard', { users: cleanLeaderboard, user: res.locals.user, pageTitle: 'Hall of Fame 🏆' });
+    } catch (err) { res.redirect('/'); }
 };
 
-// 2. Smart Static Page Handler
 exports.getStaticPage = (req, res) => {
     const page = req.params.page; 
-    const titles = {
-        'about': 'About Us',
-        'contact': 'Contact Us',
-        'how-to-use': 'How to Use Ideate',
-        'guidelines': 'Community Guidelines',
-        'faq': 'Frequently Asked Questions',
-        'terms': 'Terms & Conditions',
-        'privacy': 'Privacy Policy'
-    };
-
-    if (titles[page]) {
-        res.render(`pages/info/${page}`, { 
-            user: res.locals.user, 
-            pageTitle: titles[page] 
-        });
-    } else {
-        res.redirect('/');
-    }
+    const titles = { 'about': 'About Us', 'contact': 'Contact Us', 'how-to-use': 'How to Use Ideate', 'guidelines': 'Community Guidelines', 'faq': 'Frequently Asked Questions', 'terms': 'Terms & Conditions', 'privacy': 'Privacy Policy' };
+    if (titles[page]) res.render(`pages/info/${page}`, { user: res.locals.user, pageTitle: titles[page] });
+    else res.redirect('/');
 };
-// --- REMOVE FOLLOWER ---
+
 exports.removeFollower = async (req, res) => {
     if (!req.session.userId) return res.json({ success: false });
     try {
-        const followerId = req.params.id; // Jisko hatana hai
-        const currentUserId = req.session.userId; // Main khud
-
-        // 1. Meri 'followers' list se usko hatao
+        const followerId = req.params.id; const currentUserId = req.session.userId; 
         await User.findByIdAndUpdate(currentUserId, { $pull: { followers: followerId } });
-
-        // 2. Uske 'following' list se mujhe hatao
         await User.findByIdAndUpdate(followerId, { $pull: { following: currentUserId } });
-
         res.json({ success: true });
     } catch (err) { res.json({ success: false }); }
 };
-exports.updateSettings = async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+
+exports.fixDatabase = async (req, res) => {
     try {
-        const { 
-            displayName, bio, title, location, skills, dob, phone,
-            linkedin, github, twitter, website, // ✅ Social inputs
-            emailNotifs, publicProfile, 
-            showEmail, showPhone, showDob, // ✅ Visibility Toggles
-            theme, textSize
-        } = req.body;
-
-        let skillsArray = [];
-        if (skills) skillsArray = skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-
-        const updateData = { 
-            displayName, bio, title, location, dob, phone,
-            skills: skillsArray,
-            // ✅ Fix: Save Contacts Correctly
-            contacts: { linkedin, github, website, twitter },
-            // ✅ Fix: Save Privacy Toggles (Checkboxes send 'on' or undefined)
-            privacy: {
-                publicProfile: publicProfile === 'on',
-                showEmail: showEmail === 'on',
-                showPhone: showPhone === 'on',
-                showDob: showDob === 'on'
-            },
-            preferences: {
-                emailNotifs: emailNotifs === 'on',
-                theme: theme,
-                textSize: textSize
-            }
-        };
-
-        // Handle Images (Profile & Banner)
-        if (req.files) {
-            if (req.files['profileImage']) {
-                const file = req.files['profileImage'][0];
-                updateData.imageContent = file.buffer;
-                updateData.imageType = file.mimetype;
-                updateData.image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-            }
-            if (req.files['bannerImage']) {
-                const file = req.files['bannerImage'][0];
-                updateData.bannerImage = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-            }
+        const ideas = await Idea.find().populate('upvotes').populate('comments.userId');
+        let fixedCount = 0;
+        for (const idea of ideas) {
+            let changed = false;
+            const validUpvotes = idea.upvotes.filter(u => u !== null);
+            if (validUpvotes.length !== idea.upvotes.length) { idea.upvotes = validUpvotes.map(u => u._id); changed = true; }
+            const validComments = idea.comments.filter(c => c.userId !== null);
+            if (validComments.length !== idea.comments.length) { idea.comments = validComments; changed = true; }
+            if (changed) { await idea.save(); fixedCount++; }
         }
+        res.send(`<div style="background:#0f172a;color:white;padding:50px;text-align:center;"><h1>✅ Cleanup Done!</h1><p>Fixed ${fixedCount} posts.</p><a href="/">Back</a></div>`);
+    } catch (err) { res.send("Error: " + err.message); }
+};
 
-        await User.findByIdAndUpdate(req.session.userId, { $set: updateData });
-        res.redirect('/settings?status=success');
-    } catch (err) { 
-        console.error(err);
-        res.redirect('/settings?status=error'); 
-    }
+exports.fixUsernames = async (req, res) => {
+    try {
+        const users = await User.find({ username: { $exists: false } });
+        let count = 0;
+        let logs = "";
+        for (const user of users) {
+            let cleanName = user.displayName.toLowerCase().replace(/\s/g, '');
+            let randomNum = Math.floor(1000 + Math.random() * 9000);
+            let newUsername = `${cleanName}${randomNum}`;
+            user.username = newUsername;
+            await user.save();
+            count++;
+            logs += `<li>Fixed: <b>${user.displayName}</b> -> @${newUsername}</li>`;
+        }
+        res.send(`<div style="font-family: sans-serif; padding: 40px; background: #0f172a; color: white; min-height: 100vh;"><h1 style="color: #4ade80;">✅ Username Repair Complete!</h1><p>Total Users Fixed: <strong>${count}</strong></p><ul style="background: #1e293b; padding: 20px; border-radius: 10px; list-style: none;">${logs || "<li>No missing usernames found.</li>"}</ul><br><a href="/" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Go to Dashboard</a></div>`);
+    } catch (err) { res.send(`<h1 style="color: red;">Error: ${err.message}</h1>`); }
 };
