@@ -2,37 +2,46 @@
 <html lang="en">
 <%- include('../../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-12 max-w-5xl mx-auto">
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-12 max-w-5xl mx-auto transition-all duration-300 w-full">
         
-        <div class="text-center mb-16">
-            <h1 class="text-4xl font-black text-white mb-4">Privacy Policy</h1>
-            <p class="text-lg text-slate-400">Your trust is our most valuable asset. Here is how we protect it.</p>
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                <i class="ri-database-2-line text-3xl text-blue-400 mb-4"></i>
+        <div class="text-center mb-10 md:mb-16">
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-4">Privacy Policy</h1>
+            <p class="text-base md:text-lg text-slate-400">Your trust is our most valuable asset. Here is how we protect it.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-16">
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                <i class="ri-database-2-line text-3xl text-blue-400 mb-4 inline-block"></i>
                 <h3 class="text-lg font-bold text-white mb-2">What We Collect</h3>
                 <p class="text-sm text-slate-400">Basic info like email, username, and the content (ideas, comments) you voluntarily post.</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                <i class="ri-lock-2-line text-3xl text-green-400 mb-4"></i>
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                <i class="ri-lock-2-line text-3xl text-green-400 mb-4 inline-block"></i>
                 <h3 class="text-lg font-bold text-white mb-2">How We Protect It</h3>
                 <p class="text-sm text-slate-400">Industry-standard encryption (BCrypt) for passwords and secure SSL connections.</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-                <i class="ri-share-forward-line text-3xl text-purple-400 mb-4"></i>
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                <i class="ri-share-forward-line text-3xl text-purple-400 mb-4 inline-block"></i>
                 <h3 class="text-lg font-bold text-white mb-2">Data Sharing</h3>
                 <p class="text-sm text-slate-400">We do NOT sell your personal data. We only share anonymized stats for analytics.</p>
             </div>
         </div>
 
-        <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-10 space-y-10 text-slate-300 leading-relaxed">
+        <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 md:p-10 space-y-8 md:space-y-10 text-slate-300 leading-relaxed text-sm md:text-base">
             
             <section>
-                <h2 class="text-xl font-bold text-white mb-3">1. Information We Collect</h2>
+                <h2 class="text-lg md:text-xl font-bold text-white mb-3">1. Information We Collect</h2>
                 <p>To provide the Ideate service, we collect the following:</p>
                 <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
                     <li><strong>Account Information:</strong> Display name, email address, and encrypted password.</li>
@@ -42,7 +51,7 @@
             </section>
 
             <section>
-                <h2 class="text-xl font-bold text-white mb-3">2. How We Use Your Data</h2>
+                <h2 class="text-lg md:text-xl font-bold text-white mb-3">2. How We Use Your Data</h2>
                 <p>We use your information strictly to:</p>
                 <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
                     <li>Provide, operate, and maintain the platform.</li>
@@ -53,12 +62,12 @@
             </section>
 
             <section>
-                <h2 class="text-xl font-bold text-white mb-3">3. Cookies & Tracking</h2>
+                <h2 class="text-lg md:text-xl font-bold text-white mb-3">3. Cookies & Tracking</h2>
                 <p>We use minimal cookies (session tokens) solely to keep you logged in and remember your theme preferences (Dark/Light mode). We do not use invasive third-party tracking cookies.</p>
             </section>
 
             <section>
-                <h2 class="text-xl font-bold text-white mb-3">4. Your Rights</h2>
+                <h2 class="text-lg md:text-xl font-bold text-white mb-3">4. Your Rights</h2>
                 <p>You have the right to:</p>
                 <ul class="list-disc list-inside mt-2 space-y-1 text-slate-400">
                     <li>Access the personal data we hold about you.</li>
@@ -68,11 +77,34 @@
             </section>
 
             <section>
-                <h2 class="text-xl font-bold text-white mb-3">5. Contact Us</h2>
+                <h2 class="text-lg md:text-xl font-bold text-white mb-3">5. Contact Us</h2>
                 <p>If you have questions about this Privacy Policy or your data rights, please contact our Data Protection Officer at <a href="mailto:privacy@ideate.com" class="text-blue-400 hover:underline">privacy@ideate.com</a>.</p>
             </section>
 
         </div>
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

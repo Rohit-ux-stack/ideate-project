@@ -2,58 +2,67 @@
 <html lang="en">
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-8">
+    <main class="ml-0 md:ml-64 flex-1 p-4 md:p-8 w-full transition-all duration-300">
+        
+        <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
         <div class="max-w-3xl mx-auto">
             
-            <div class="flex items-center gap-4 mb-8">
-                <a href="/user/<%= targetUser._id %>" class="bg-slate-800 p-2 rounded-full hover:bg-slate-700 transition text-slate-400 border border-slate-700">
-                    <i class="ri-arrow-left-line text-xl"></i>
+            <div class="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
+                <a href="/user/<%= targetUser._id %>" class="bg-slate-800 p-2 rounded-full hover:bg-slate-700 transition text-slate-400 border border-slate-700 shrink-0">
+                    <i class="ri-arrow-left-line text-lg md:text-xl"></i>
                 </a>
-                <div>
-                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                <div class="min-w-0"> <h1 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                         <%= type.charAt(0).toUpperCase() + type.slice(1) %>
-                        <span class="text-sm font-normal text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800"><%= list.length %></span>
+                        <span class="text-xs md:text-sm font-normal text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800"><%= list.length %></span>
                     </h1>
-                    <p class="text-slate-500 text-sm">@<%= targetUser.displayName %></p>
+                    <p class="text-slate-500 text-xs md:text-sm truncate">@<%= targetUser.displayName %></p>
                 </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 md:space-y-4">
                 <% if (list.length === 0) { %>
-                    <div class="text-center py-16 bg-slate-900/30 rounded-3xl border border-slate-800 border-dashed">
-                        <i class="ri-user-unfollow-line text-4xl mb-3 block text-slate-600"></i>
-                        <span class="text-slate-500">No <%= type %> found.</span>
+                    <div class="text-center py-12 md:py-16 bg-slate-900/30 rounded-3xl border border-slate-800 border-dashed">
+                        <i class="ri-user-unfollow-line text-3xl md:text-4xl mb-3 block text-slate-600"></i>
+                        <span class="text-slate-500 text-sm md:text-base">No <%= type %> found.</span>
                     </div>
                 <% } else { %>
                     <% list.forEach(u => { %>
-                        <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl flex items-center justify-between group hover:border-slate-700 transition relative overflow-hidden" id="user-card-<%= u._id %>">
+                        <div class="bg-slate-900/50 border border-slate-800 p-3 md:p-4 rounded-2xl flex items-center justify-between group hover:border-slate-700 transition relative overflow-hidden" id="user-card-<%= u._id %>">
                             
-                            <a href="/user/<%= u._id %>" class="flex items-center gap-4 flex-1 z-10">
-                                <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700 shrink-0">
+                            <a href="/user/<%= u._id %>" class="flex items-center gap-3 md:gap-4 flex-1 z-10 min-w-0 mr-2">
+                                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700 shrink-0">
                                     <% if (u.image) { %>
                                         <img src="<%= u.image %>" class="w-full h-full object-cover">
                                     <% } else { %>
-                                        <span class="font-bold text-lg text-white"><%= u.displayName.charAt(0) %></span>
+                                        <span class="font-bold text-base md:text-lg text-white"><%= u.displayName.charAt(0) %></span>
                                     <% } %>
                                 </div>
-                                <div>
-                                    <h3 class="font-bold text-white group-hover:text-blue-400 transition text-base"><%= u.displayName %></h3>
-                                    <p class="text-xs text-slate-500 line-clamp-1"><%= u.bio || "Available for collaboration." %></p>
+                                <div class="min-w-0">
+                                    <h3 class="font-bold text-white group-hover:text-blue-400 transition text-sm md:text-base truncate"><%= u.displayName %></h3>
+                                    <p class="text-[10px] md:text-xs text-slate-500 line-clamp-1"><%= u.bio || "Available for collaboration." %></p>
                                 </div>
                             </a>
 
-                            <div class="flex items-center gap-3 z-10">
+                            <div class="flex items-center gap-2 md:gap-3 z-10 shrink-0">
                                 
                                 <% if (user && user._id.toString() === targetUser._id.toString() && type === 'followers') { %>
-                                    <button onclick="openRemoveModal('<%= u._id %>', '<%= u.displayName %>')" class="px-3 py-1.5 text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-lg transition border border-red-500/20 flex items-center gap-1" title="Remove this follower">
-                                        <i class="ri-user-unfollow-line"></i> Remove
+                                    <button onclick="openRemoveModal('<%= u._id %>', '<%= u.displayName %>')" class="p-2 md:px-3 md:py-1.5 text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-lg transition border border-red-500/20 flex items-center gap-1" title="Remove this follower">
+                                        <i class="ri-user-unfollow-line"></i> <span class="hidden md:inline">Remove</span>
                                     </button>
                                 <% } %>
 
                                 <% if (user && user._id.toString() !== u._id.toString()) { %>
-                                    <button onclick="toggleFollowInList(this, '<%= u._id %>')" class="<%= user.following.includes(u._id) ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-blue-600 text-white border border-blue-600' %> px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-lg">
+                                    <button onclick="toggleFollowInList(this, '<%= u._id %>')" class="<%= user.following.includes(u._id) ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-blue-600 text-white border border-blue-600' %> px-3 py-1.5 md:px-4 md:py-1.5 rounded-lg text-xs font-bold transition shadow-lg">
                                         <%= user.following.includes(u._id) ? 'Unfollow' : 'Follow' %>
                                     </button>
                                 <% } %>
@@ -68,7 +77,6 @@
 
     <div id="removeModal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-all">
-            
             <div class="text-center mb-6">
                 <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-red-500/20">
                     <i class="ri-user-unfollow-line"></i>
@@ -79,7 +87,6 @@
                     They won't be notified, but they won't see your private posts anymore.
                 </p>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <button onclick="closeRemoveModal()" class="bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition border border-slate-700">
                     Cancel
@@ -92,7 +99,29 @@
     </div>
 
     <script>
-        // --- 1. REMOVE FOLLOWER LOGIC ---
+        // === 1. SIDEBAR TOGGLE LOGIC ===
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // === 2. REMOVE FOLLOWER LOGIC ===
         let followerIdToRemove = null;
 
         function openRemoveModal(id, name) {
@@ -138,7 +167,7 @@
             }
         }
 
-        // --- 2. TOGGLE FOLLOW LOGIC (ADDED MISSING SCRIPT) ---
+        // === 3. TOGGLE FOLLOW LOGIC ===
         async function toggleFollowInList(btn, userId) {
             if(window.event) {
                 window.event.preventDefault();
@@ -152,10 +181,10 @@
                 if(data.success) {
                     if(data.isFollowing) {
                         btn.innerText = 'Unfollow';
-                        btn.className = 'bg-slate-800 text-slate-300 border border-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-lg';
+                        btn.className = 'bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 md:px-4 rounded-lg text-xs font-bold transition shadow-lg';
                     } else {
                         btn.innerText = 'Follow';
-                        btn.className = 'bg-blue-600 text-white border border-blue-600 px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-lg';
+                        btn.className = 'bg-blue-600 text-white border border-blue-600 px-3 py-1.5 md:px-4 rounded-lg text-xs font-bold transition shadow-lg';
                     }
                 } else if(data.error === "Login required") {
                     window.location.href = "/login";
@@ -163,7 +192,7 @@
             } catch(err) { console.error(err); }
         }
 
-        // Close modal on outside click
+        // Close modal on outside click (for Remove Modal)
         document.getElementById('removeModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('removeModal')) closeRemoveModal();
         });

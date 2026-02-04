@@ -5,14 +5,14 @@ const sendEmail = async (email, subject, text) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail', // ✅ Change 1: Host hata kar 'service: gmail' lagaya
             auth: {
-                user: 'rohitbanerjee847@gmail.com', // ✅ Aapka Gmail
-                pass: 'preh gmgn bwjb qtbj'          // ✅ Aapka App Password
+                user: '', // ✅ Aapka Gmail
+                pass: ''          // ✅ Aapka App Password
             }
         });
 
         // Email bhejo
         await transporter.sendMail({
-            from: '"Ideate Team" <rohitbanerjee@gmail.com>', // ✅ From address must match authenticated user
+            from: '"Ideate Team" <>', // ✅ From address must match authenticated user
             to: email, 
             subject: subject,
             text: text, 

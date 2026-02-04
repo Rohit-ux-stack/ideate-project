@@ -42,27 +42,37 @@
 </style>
 
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
     
-    <main class="ml-64 flex-1 p-8">
+    <main class="ml-0 md:ml-64 flex-1 p-4 md:p-8 transition-all duration-300 w-full">
+        
+        <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
         <div class="max-w-4xl mx-auto">
             
-            <a href="/" class="flex items-center space-x-2 text-slate-400 hover:text-white mb-6 w-fit">
+            <a href="/" class="flex items-center space-x-2 text-slate-400 hover:text-white mb-6 w-fit text-sm md:text-base">
                 <i class="ri-arrow-left-line"></i><span>Back to Feed</span>
             </a>
 
-            <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl shadow-2xl mb-10">
+            <div class="bg-slate-900/50 border border-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl mb-10">
                 
                 <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase tracking-wider"><%= idea.category %></span>
-                    <span class="text-slate-500 text-sm font-medium"><%= idea.createdAt ? new Date(idea.createdAt).toLocaleDateString() : 'Just now' %></span>
+                    <span class="text-[10px] md:text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase tracking-wider"><%= idea.category %></span>
+                    <span class="text-slate-500 text-xs md:text-sm font-medium"><%= idea.createdAt ? new Date(idea.createdAt).toLocaleDateString() : 'Just now' %></span>
                 </div>
 
-                <h1 class="text-4xl font-bold text-white mb-6"><%= idea.title %></h1>
+                <h1 class="text-2xl md:text-4xl font-bold text-white mb-6 leading-tight"><%= idea.title %></h1>
 
-                <div class="flex items-center justify-between border-b border-slate-800/50 pb-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800/50 pb-6 mb-6 gap-4">
                     <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.href='/user/<%= idea.authorId %>'">
-                        <div class="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-xl overflow-hidden border-2 border-slate-600 hover:border-blue-500 transition shadow-lg">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-lg md:text-xl overflow-hidden border-2 border-slate-600 hover:border-blue-500 transition shadow-lg shrink-0">
                             <% if (idea.authorImage) { %>
                                 <img src="<%= idea.authorImage %>" class="w-full h-full object-cover">
                             <% } else { %>
@@ -70,9 +80,9 @@
                             <% } %>
                         </div>
                         
-                        <div class="flex flex-col">
-                            <span class="text-lg font-bold text-white hover:text-blue-400 transition"><%= idea.author %></span>
-                            <span class="text-sm text-blue-400 font-medium">
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-base md:text-lg font-bold text-white hover:text-blue-400 transition truncate"><%= idea.author %></span>
+                            <span class="text-xs md:text-sm text-blue-400 font-medium truncate">
                                 @<%= idea.authorUsername || 'unknown' %>
                             </span>
                         </div>
@@ -82,7 +92,7 @@
                         <button 
                             type="button"
                             onclick="togglePostFollow(this, '<%= idea.authorId %>')"
-                            class="px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg <%= user.following.includes(idea.authorId) ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-500' %>">
+                            class="w-full md:w-auto justify-center px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg <%= user.following.includes(idea.authorId) ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-500' %>">
                             <i class="<%= user.following.includes(idea.authorId) ? 'ri-user-unfollow-line' : 'ri-user-add-line' %>"></i>
                             <span><%= user.following.includes(idea.authorId) ? 'Unfollow' : 'Follow' %></span>
                         </button>
@@ -90,27 +100,27 @@
                 </div>
                 
                 <% if(idea.images && idea.images.length > 0) { %>
-                    <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         <% idea.images.forEach(img => { %>
-                            <img src="<%= img.src %>" class="w-full h-64 object-cover rounded-xl border border-slate-700">
+                            <img src="<%= img.src %>" class="w-full h-48 md:h-64 object-cover rounded-xl border border-slate-700">
                         <% }) %>
                     </div>
                 <% } %>
 
-                <p class="text-slate-300 text-lg leading-relaxed whitespace-pre-line mb-10"><%= idea.description %></p>
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed whitespace-pre-line mb-10"><%= idea.description %></p>
                 
-                <div class="flex items-center justify-between border-t border-slate-800 pt-6">
-                    <a href="/post/<%= idea._id %>/raise" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl transition border border-slate-700 hover:border-green-500/50 group">
+                <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between border-t border-slate-800 pt-6 gap-4">
+                    <a href="/post/<%= idea._id %>/raise" class="flex justify-center items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl transition border border-slate-700 hover:border-green-500/50 group w-full md:w-auto">
                         <i class="ri-arrow-up-circle-fill text-xl text-green-500 group-hover:scale-110 transition"></i> 
                         <span class="font-bold">Raise Idea (<%= idea.upvotes.length %>)</span>
                     </a>
 
                     <% if (user && idea.authorId && user._id.toString() === idea.authorId.toString()) { %>
-                        <div class="flex gap-3">
-                            <a href="/post/<%= idea._id %>/edit" class="bg-slate-800 text-slate-400 hover:text-blue-400 px-4 py-2 rounded-xl transition font-bold text-sm flex items-center gap-2 border border-slate-700">
+                        <div class="flex gap-3 w-full md:w-auto">
+                            <a href="/post/<%= idea._id %>/edit" class="flex-1 md:flex-none justify-center bg-slate-800 text-slate-400 hover:text-blue-400 px-4 py-2 rounded-xl transition font-bold text-sm flex items-center gap-2 border border-slate-700">
                                 <i class="ri-edit-line"></i> Edit
                             </a>
-                            <a href="/post/<%= idea._id %>/delete" onclick="return confirm('Delete this idea permanently?')" class="bg-slate-800 text-slate-400 hover:text-red-400 px-4 py-2 rounded-xl transition font-bold text-sm flex items-center gap-2 border border-slate-700">
+                            <a href="/post/<%= idea._id %>/delete" onclick="return confirm('Delete this idea permanently?')" class="flex-1 md:flex-none justify-center bg-slate-800 text-slate-400 hover:text-red-400 px-4 py-2 rounded-xl transition font-bold text-sm flex items-center gap-2 border border-slate-700">
                                 <i class="ri-delete-bin-line"></i> Delete
                             </a>
                         </div>
@@ -119,17 +129,17 @@
             </div>
 
             <div class="mt-10 relative">
-                <h3 class="text-2xl font-bold text-white mb-6">Comments (<%= idea.comments.length %>)</h3>
+                <h3 class="text-xl md:text-2xl font-bold text-white mb-6">Comments (<%= idea.comments.length %>)</h3>
                 
                 <form action="/post/<%= idea._id %>/comment" method="POST" class="mb-8 relative">
-                    <textarea id="mainCommentBox" name="comment" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="Type @ to mention someone..." onkeyup="handleMention(event, this)"></textarea>
+                    <textarea id="mainCommentBox" name="comment" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none placeholder-slate-600 text-sm md:text-base" placeholder="Type @ to mention someone..." onkeyup="handleMention(event, this)"></textarea>
                     <div id="suggestionBox" class="suggestion-box"></div>
-                    <button type="submit" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold">Post Comment</button>
+                    <button type="submit" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold w-full md:w-auto">Post Comment</button>
                 </form>
 
                 <div class="space-y-6">
                     <% idea.comments.forEach(comment => { %>
-                        <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 group relative">
+                        <div class="bg-slate-900/50 p-4 md:p-6 rounded-2xl border border-slate-800 group relative">
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-3">
                                     <a href="<%= comment.userId ? '/user/' + (comment.userId._id || comment.userId) : '#' %>" class="shrink-0">
@@ -141,32 +151,30 @@
                                             </div>
                                         <% } %>
                                     </a>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <a href="<%= comment.userId ? '/user/' + (comment.userId._id || comment.userId) : '#' %>" class="font-bold text-slate-300 text-sm hover:text-blue-400 transition">
+                                    <div class="min-w-0"> <div class="flex flex-wrap items-center gap-2">
+                                            <a href="<%= comment.userId ? '/user/' + (comment.userId._id || comment.userId) : '#' %>" class="font-bold text-slate-300 text-sm hover:text-blue-400 transition truncate max-w-[120px] md:max-w-none">
                                                 <%= comment.user || 'Deleted User' %>
                                             </a>
-                                            <span class="text-xs text-blue-500/80 font-medium">@<%= comment.userId ? comment.userId.username : 'unknown' %></span>
+                                            <span class="text-xs text-blue-500/80 font-medium truncate">@<%= comment.userId ? comment.userId.username : 'unknown' %></span>
                                         </div>
                                         <span class="text-[10px] text-slate-600"><%= new Date(comment.createdAt).toLocaleDateString() %></span>
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
-                                    <% if (user && comment.userId && comment.userId._id.toString() === user._id.toString()) { %>
-                                        <button onclick="toggleEdit('<%= comment._id %>')" class="text-slate-500 hover:text-blue-400 p-2"><i class="ri-pencil-line"></i></button>
+                                <div class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition"> <% if (user && comment.userId && comment.userId._id.toString() === user._id.toString()) { %>
+                                        <button onclick="toggleEdit('<%= comment._id %>')" class="text-slate-500 hover:text-blue-400 p-1 md:p-2"><i class="ri-pencil-line"></i></button>
                                     <% } %>
                                     <% if (user && ((comment.userId && comment.userId._id.toString() === user._id.toString()) || (idea.authorId && idea.authorId.toString() === user._id.toString()))) { %>
-                                        <a href="/post/<%= idea._id %>/comment/<%= comment._id %>/delete" onclick="return confirm('Delete?')" class="text-slate-600 hover:text-red-500 p-2"><i class="ri-delete-bin-line"></i></a>
+                                        <a href="/post/<%= idea._id %>/comment/<%= comment._id %>/delete" onclick="return confirm('Delete?')" class="text-slate-600 hover:text-red-500 p-1 md:p-2"><i class="ri-delete-bin-line"></i></a>
                                     <% } %>
                                 </div>
                             </div>
                             
-                            <div id="text-<%= comment._id %>" class="comment-text text-slate-400 text-sm ml-12 mb-3">
+                            <div id="text-<%= comment._id %>" class="comment-text text-slate-400 text-sm ml-11 md:ml-12 mb-3 break-words">
                                 <%- comment.text.replace(/@(\w+)/g, '<a href="/api/users/search?find=$1" class="text-blue-400 hover:underline font-bold">@$1</a>') %>
                             </div>
 
-                            <div class="ml-12 mt-2">
+                            <div class="ml-11 md:ml-12 mt-2">
                                 <details id="details-<%= comment._id %>">
                                     <summary class="text-xs text-blue-500 cursor-pointer font-bold hover:underline w-fit">Reply</summary>
                                     <form action="/post/<%= idea._id %>/comment/<%= comment._id %>/reply" method="POST" class="mt-2 flex gap-2 relative">
@@ -177,19 +185,19 @@
                             </div>
                             
                             <% if (comment.replies && comment.replies.length > 0) { %>
-                                <div class="ml-12 mt-3 space-y-3 pl-4 border-l-2 border-slate-700">
+                                <div class="ml-11 md:ml-12 mt-3 space-y-3 pl-3 md:pl-4 border-l-2 border-slate-700">
                                     <% comment.replies.forEach(reply => { %>
                                         <div class="bg-slate-900/80 p-3 rounded-lg group/reply relative">
                                             <div class="flex justify-between items-start">
                                                 <div class="flex items-center gap-2 mb-1">
-                                                    <span class="font-bold text-slate-300 text-xs"><%= reply.user %></span>
-                                                    <span class="text-[10px] text-blue-500/80 ml-1">@<%= reply.userId ? reply.userId.username : 'unknown' %></span>
+                                                    <span class="font-bold text-slate-300 text-xs truncate max-w-[100px]"><%= reply.user %></span>
+                                                    <span class="text-[10px] text-blue-500/80 ml-1 truncate max-w-[80px]">@<%= reply.userId ? reply.userId.username : 'unknown' %></span>
                                                 </div>
                                                 <% if (user && ((reply.userId && reply.userId._id.toString() === user._id.toString()) || (idea.authorId && idea.authorId.toString() === user._id.toString()))) { %>
-                                                    <a href="/post/<%= idea._id %>/comment/<%= comment._id %>/delete" onclick="return confirm('Delete?')" class="text-slate-600 hover:text-red-500 opacity-0 group-hover/reply:opacity-100 transition text-[10px]"><i class="ri-delete-bin-line"></i></a>
+                                                    <a href="/post/<%= idea._id %>/comment/<%= comment._id %>/delete" onclick="return confirm('Delete?')" class="text-slate-600 hover:text-red-500 md:opacity-0 group-hover/reply:opacity-100 transition text-[10px]"><i class="ri-delete-bin-line"></i></a>
                                                 <% } %>
                                             </div>
-                                            <p class="text-slate-500 text-xs"><%- reply.text.replace(/@(\w+)/g, '<a href="/api/users/search?find=$1" class="text-blue-400 hover:underline font-bold">@$1</a>') %></p>
+                                            <p class="text-slate-500 text-xs break-words"><%- reply.text.replace(/@(\w+)/g, '<a href="/api/users/search?find=$1" class="text-blue-400 hover:underline font-bold">@$1</a>') %></p>
                                         </div>
                                     <% }) %>
                                 </div>
@@ -205,7 +213,28 @@
     <%- include('../partials/postModal') %>
 
     <script>
-        // ✅ NEW: Dedicated Follow Function for Post Page
+        // === 1. SIDEBAR TOGGLE ===
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // === 2. FOLLOW LOGIC ===
         async function togglePostFollow(btn, userId) {
             if(window.event) { window.event.preventDefault(); window.event.stopPropagation(); }
             
@@ -220,11 +249,11 @@
                     if (data.isFollowing) {
                         span.innerText = 'Unfollow';
                         icon.className = 'ri-user-unfollow-line';
-                        btn.className = 'px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg bg-slate-800 text-slate-400 border-slate-700';
+                        btn.className = 'w-full md:w-auto justify-center px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg bg-slate-800 text-slate-400 border-slate-700';
                     } else {
                         span.innerText = 'Follow';
                         icon.className = 'ri-user-add-line';
-                        btn.className = 'px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg bg-blue-600 text-white border-blue-600 hover:bg-blue-500';
+                        btn.className = 'w-full md:w-auto justify-center px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 border shadow-lg bg-blue-600 text-white border-blue-600 hover:bg-blue-500';
                     }
                 } else if (data.error === "Login required") {
                     window.location.href = "/login";

@@ -1,120 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
+
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-8">
+    <main class="ml-0 md:ml-64 flex-1 p-4 md:p-8 transition-all duration-300 w-full">
+        
+        <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
         <div class="max-w-5xl mx-auto">
             
-            <div class="flex items-center gap-4 mb-8">
+            <div class="flex items-center gap-4 mb-6 md:mb-8">
                 <button onclick="safeBack()" class="bg-slate-800 p-2 rounded-full hover:bg-slate-700 transition text-slate-400 border border-slate-700">
-                    <i class="ri-arrow-left-line text-xl"></i>
+                    <i class="ri-arrow-left-line text-lg md:text-xl"></i>
                 </button>
-                <h1 class="text-3xl font-bold text-white">Settings & Personalization</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-white">Settings & Personalization</h1>
             </div>
 
-            <% if (message) { %>
+            <% if (typeof message !== 'undefined' && message) { %>
                 <div class="mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-2 <%= message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20' %>">
                     <i class="<%= message.type === 'success' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line' %> text-xl"></i>
                     <%= message.text %>
                 </div>
             <% } %>
 
-            <form action="/settings/update" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="/settings/update" method="POST" enctype="multipart/form-data" class="space-y-6 md:space-y-8">
                 
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <div class="bg-slate-900/50 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                    <h2 class="text-lg md:text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <i class="ri-image-edit-line text-purple-500"></i> Visual Identity
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                             <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Profile Picture</label>
                             <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
+                                <div class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
                                     <% if (user.image) { %>
                                         <img src="<%= user.image %>" class="w-full h-full object-cover" id="pfpPreview">
                                     <% } else { %>
                                         <div class="w-full h-full flex items-center justify-center text-xl font-bold text-slate-500"><%= user.displayName.charAt(0) %></div>
                                     <% } %>
                                 </div>
-                                <input type="file" name="profileImage" onchange="previewImage(event, 'pfpPreview')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
+                                <input type="file" name="profileImage" onchange="previewImage(event, 'pfpPreview')" class="block w-full text-xs md:text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Banner Image</label>
                             <div class="flex items-center gap-4">
-                                <div class="w-24 h-16 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden">
+                                <div class="w-24 h-16 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
                                     <% if (user.bannerImage) { %>
                                         <img src="<%= user.bannerImage %>" class="w-full h-full object-cover" id="bannerPreview">
                                     <% } else { %>
                                         <div class="w-full h-full flex items-center justify-center text-slate-500"><i class="ri-image-line"></i></div>
                                     <% } %>
                                 </div>
-                                <input type="file" name="bannerImage" onchange="previewImage(event, 'bannerPreview')" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"/>
+                                <input type="file" name="bannerImage" onchange="previewImage(event, 'bannerPreview')" class="block w-full text-xs md:text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"/>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <div class="bg-slate-900/50 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                    <h2 class="text-lg md:text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <i class="ri-paint-brush-line text-pink-500"></i> Appearance
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                             <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Theme</label>
                             <div class="flex gap-4">
                                 <label class="cursor-pointer">
                                     <input type="radio" name="theme" value="dark" class="peer sr-only" <%= (!user.preferences || user.preferences.theme === 'dark') ? 'checked' : '' %>>
-                                    <div class="px-6 py-3 rounded-xl border border-slate-700 bg-slate-900 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition flex items-center gap-2">
+                                    <div class="px-4 md:px-6 py-3 rounded-xl border border-slate-700 bg-slate-900 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition flex items-center gap-2 text-sm md:text-base">
                                         <i class="ri-moon-line"></i> Dark
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="theme" value="light" class="peer sr-only" <%= (user.preferences && user.preferences.theme === 'light') ? 'checked' : '' %>>
-                                    <div class="px-6 py-3 rounded-xl border border-slate-700 bg-slate-100 text-slate-800 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-600 transition flex items-center gap-2">
+                                    <div class="px-4 md:px-6 py-3 rounded-xl border border-slate-700 bg-slate-100 text-slate-800 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-600 transition flex items-center gap-2 text-sm md:text-base">
                                         <i class="ri-sun-line"></i> Light
                                     </div>
-                                </label>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-xs uppercase font-bold mb-3">Text Size</label>
-                            <div class="flex gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl w-fit">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="textSize" value="small" class="peer sr-only" <%= (user.preferences && user.preferences.textSize === 'small') ? 'checked' : '' %>>
-                                    <div class="px-4 py-2 rounded-lg text-xs peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
-                                </label>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="textSize" value="normal" class="peer sr-only" <%= (!user.preferences || user.preferences.textSize === 'normal') ? 'checked' : '' %>>
-                                    <div class="px-4 py-2 rounded-lg text-sm peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
-                                </label>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="textSize" value="large" class="peer sr-only" <%= (user.preferences && user.preferences.textSize === 'large') ? 'checked' : '' %>>
-                                    <div class="px-4 py-2 rounded-lg text-lg peer-checked:bg-slate-700 peer-checked:text-white text-slate-400 transition">Aa</div>
                                 </label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <div class="bg-slate-900/50 border border-slate-800 p-6 md:p-8 rounded-3xl">
+                    <h2 class="text-lg md:text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <i class="ri-user-settings-line text-blue-500"></i> Personal Info
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
                         <div class="md:col-span-2">
                             <label class="block text-slate-400 text-xs uppercase font-bold mb-2">Display Name</label>
-                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                            <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition-colors">
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-slate-400 text-xs uppercase font-bold">Phone Number</label>
                             <div class="flex gap-2">
-                                <input type="tel" name="phone" value="<%= user.phone || '' %>" placeholder="+91..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
+                                <input type="tel" name="phone" value="<%= user.phone || '' %>" placeholder="+91..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition-colors">
                                 <label class="shrink-0 flex items-center justify-center w-12 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition" title="Show on Profile?">
                                     <input type="checkbox" name="showPhone" class="peer sr-only" <%= (user.privacy && user.privacy.showPhone) ? 'checked' : '' %>>
                                     <i class="ri-eye-off-line text-slate-500 peer-checked:hidden text-xl"></i>
@@ -134,47 +128,6 @@
                                 </label>
                             </div>
                         </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-slate-400 text-xs uppercase font-bold">Date of Birth</label>
-                            <div class="flex gap-2">
-                                <input type="date" name="dob" value="<%= user.dob ? user.dob.toISOString().split('T')[0] : '' %>" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none">
-                                <label class="shrink-0 flex items-center justify-center w-12 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition" title="Show on Profile?">
-                                    <input type="checkbox" name="showDob" class="peer sr-only" <%= (user.privacy && user.privacy.showDob) ? 'checked' : '' %>>
-                                    <i class="ri-eye-off-line text-slate-500 peer-checked:hidden text-xl"></i>
-                                    <i class="ri-eye-line text-green-400 hidden peer-checked:block text-xl"></i>
-                                </label>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="ri-briefcase-line text-green-500"></i> Professional
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="text" name="title" value="<%= user.title || '' %>" placeholder="Title (e.g. Developer)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
-                        <input type="text" name="location" value="<%= user.location || '' %>" placeholder="Location" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
-                        <div class="md:col-span-2">
-                            <input type="text" name="skills" value="<%= user.skills ? user.skills.join(', ') : '' %>" placeholder="Skills (comma separated)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none">
-                        </div>
-                        <div class="md:col-span-2">
-                            <textarea name="bio" rows="3" placeholder="Bio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none"><%= user.bio %></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="ri-links-line text-sky-500"></i> Social Links
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="text" name="website" value="<%= user.contacts ? user.contacts.website : '' %>" placeholder="Website URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
-                        <input type="text" name="github" value="<%= user.contacts ? user.contacts.github : '' %>" placeholder="GitHub URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
-                        <input type="text" name="linkedin" value="<%= user.contacts ? user.contacts.linkedin : '' %>" placeholder="LinkedIn URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
-                        <input type="text" name="twitter" value="<%= user.contacts ? user.contacts.twitter : '' %>" placeholder="Twitter URL" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-sky-500 outline-none">
                     </div>
                 </div>
 
@@ -187,12 +140,14 @@
 
             <div class="mt-12 mb-12 border-t border-slate-800 pt-8">
                 <h3 class="text-red-500 font-bold mb-4">Danger Zone</h3>
-                <div class="flex justify-between items-center bg-red-500/5 border border-red-500/10 p-6 rounded-2xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-red-500/5 border border-red-500/10 p-6 rounded-2xl gap-4">
                     <div>
                         <div class="font-bold text-white">Delete Account</div>
                         <div class="text-xs text-slate-400">Permanently remove your profile and all ideas.</div>
                     </div>
-                    <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="text-red-500 hover:text-red-400 font-bold text-sm border border-red-500/30 px-4 py-2 rounded-lg hover:bg-red-500/10 transition">Delete</button>
+                    <button onclick="document.getElementById('deleteModal').classList.remove('hidden')" class="text-red-500 hover:text-red-400 font-bold text-sm border border-red-500/30 px-4 py-2 rounded-lg hover:bg-red-500/10 transition w-full md:w-auto">
+                        Delete
+                    </button>
                 </div>
             </div>
 
@@ -218,6 +173,27 @@
     </div>
 
     <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
         function safeBack() {
              if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) history.back();
              else window.location.href = '/';

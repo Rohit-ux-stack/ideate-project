@@ -2,66 +2,99 @@
 <html lang="en">
 <%- include('../../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../../partials/sidebar') %>
-    <main class="ml-64 flex-1 p-12 max-w-6xl mx-auto">
+
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-12 max-w-6xl mx-auto transition-all duration-300 w-full">
         
-        <div class="text-center mb-16">
-            <h1 class="text-4xl font-bold text-white mb-4">Mastering Ideate</h1>
-            <p class="text-slate-400 text-lg">From a rough sketch to a community-backed project.</p>
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
-                <div class="w-14 h-14 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center text-2xl font-black mb-6">1</div>
-                <h3 class="text-xl font-bold text-white mb-3">Draft & Post</h3>
+        <div class="text-center mb-10 md:mb-16">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Mastering Ideate</h1>
+            <p class="text-slate-400 text-base md:text-lg">From a rough sketch to a community-backed project.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-16">
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
+                <div class="w-12 h-12 md:w-14 md:h-14 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-black mb-4 md:mb-6">1</div>
+                <h3 class="text-lg md:text-xl font-bold text-white mb-3">Draft & Post</h3>
                 <p class="text-slate-400 leading-relaxed text-sm">Don't wait for perfection. Use a catchy title. Upload sketches or diagrams to explain better. Select the right category (Tech, Social, etc.).</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
-                <div class="w-14 h-14 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center text-2xl font-black mb-6">2</div>
-                <h3 class="text-xl font-bold text-white mb-3">Engage</h3>
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
+                <div class="w-12 h-12 md:w-14 md:h-14 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-black mb-4 md:mb-6">2</div>
+                <h3 class="text-lg md:text-xl font-bold text-white mb-3">Engage</h3>
                 <p class="text-slate-400 leading-relaxed text-sm">Reply to comments. People who comment are your potential co-founders or first users. Value their input, even if it's critical.</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
-                <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center text-2xl font-black mb-6">3</div>
-                <h3 class="text-xl font-bold text-white mb-3">Iterate</h3>
+            <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl hover:-translate-y-2 transition duration-300">
+                <div class="w-12 h-12 md:w-14 md:h-14 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-black mb-4 md:mb-6">3</div>
+                <h3 class="text-lg md:text-xl font-bold text-white mb-3">Iterate</h3>
                 <p class="text-slate-400 leading-relaxed text-sm">Use the "Edit" feature to update your idea description based on feedback. Show the community that the idea is evolving.</p>
             </div>
         </div>
 
-        <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-10">
-            <h2 class="text-2xl font-bold text-white mb-8 flex items-center gap-3"><i class="ri-flashlight-fill text-yellow-400"></i> Pro Tips for Visibility</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 md:p-10">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 flex items-center gap-3"><i class="ri-flashlight-fill text-yellow-400"></i> Pro Tips for Visibility</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div class="flex gap-4">
-                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1"></i>
+                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1 shrink-0"></i>
                     <div>
-                        <h4 class="font-bold text-white">Use Visuals</h4>
-                        <p class="text-slate-400 text-sm">Ideas with images get 3x more engagement than text-only posts.</p>
+                        <h4 class="font-bold text-white text-sm md:text-base">Use Visuals</h4>
+                        <p class="text-slate-400 text-xs md:text-sm">Ideas with images get 3x more engagement than text-only posts.</p>
                     </div>
                 </div>
                 <div class="flex gap-4">
-                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1"></i>
+                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1 shrink-0"></i>
                     <div>
-                        <h4 class="font-bold text-white">Ask Questions</h4>
-                        <p class="text-slate-400 text-sm">End your description with a specific question like "Would you pay $5 for this?" to trigger discussion.</p>
+                        <h4 class="font-bold text-white text-sm md:text-base">Ask Questions</h4>
+                        <p class="text-slate-400 text-xs md:text-sm">End your description with a specific question like "Would you pay $5 for this?" to trigger discussion.</p>
                     </div>
                 </div>
                 <div class="flex gap-4">
-                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1"></i>
+                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1 shrink-0"></i>
                     <div>
-                        <h4 class="font-bold text-white">Complete Profile</h4>
-                        <p class="text-slate-400 text-sm">Users trust ideas from profiles with a photo and bio. It shows you are real.</p>
+                        <h4 class="font-bold text-white text-sm md:text-base">Complete Profile</h4>
+                        <p class="text-slate-400 text-xs md:text-sm">Users trust ideas from profiles with a photo and bio. It shows you are real.</p>
                     </div>
                 </div>
                 <div class="flex gap-4">
-                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1"></i>
+                    <i class="ri-checkbox-circle-fill text-blue-500 text-xl mt-1 shrink-0"></i>
                     <div>
-                        <h4 class="font-bold text-white">Share Externally</h4>
-                        <p class="text-slate-400 text-sm">Copy your post link and share it on Twitter/LinkedIn to bring outside traffic.</p>
+                        <h4 class="font-bold text-white text-sm md:text-base">Share Externally</h4>
+                        <p class="text-slate-400 text-xs md:text-sm">Copy your post link and share it on Twitter/LinkedIn to bring outside traffic.</p>
                     </div>
                 </div>
             </div>
         </div>
 
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

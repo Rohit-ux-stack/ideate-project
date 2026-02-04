@@ -2,63 +2,82 @@
 <html lang="en">
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-8">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 mb-2">Hall of Fame 🏆</h1>
-            <p class="text-slate-400">Top Innovators creating the most impact.</p>
+    <main class="ml-0 md:ml-64 flex-1 p-4 md:p-8 transition-all duration-300 w-full">
+        
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
         </div>
 
-        <div class="max-w-4xl mx-auto space-y-4">
+        <div class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 mb-2">Hall of Fame 🏆</h1>
+            <p class="text-slate-400 text-sm md:text-base">Top Innovators creating the most impact.</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto space-y-3 md:space-y-4">
             <% users.forEach((u, index) => { %>
-                <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 relative group hover:border-yellow-500/30 transition">
+                <div class="bg-slate-900/50 border border-slate-800 p-3 md:p-4 rounded-2xl flex flex-row items-center gap-3 md:gap-4 relative group hover:border-yellow-500/30 transition shadow-lg shadow-black/20">
                     
-                    <div class="text-3xl font-black text-slate-700 w-12 text-center shrink-0 select-none">
+                    <div class="text-2xl md:text-3xl font-black text-slate-700 w-8 md:w-12 text-center shrink-0 select-none">
                         #<%= index + 1 %>
                     </div>
 
                     <% if (index === 0) { %>
-                        <div class="absolute top-0 right-0 p-2 bg-yellow-500/10 rounded-bl-xl border-b border-l border-yellow-500/20">
-                            <i class="ri-vip-crown-fill text-xl text-yellow-400"></i>
+                        <div class="absolute top-0 right-0 p-1.5 md:p-2 bg-yellow-500/10 rounded-bl-xl border-b border-l border-yellow-500/20 z-10">
+                            <i class="ri-vip-crown-fill text-lg md:text-xl text-yellow-400"></i>
                         </div>
-                    <% } %>
-                    <% if (index === 1) { %>
-                        <div class="absolute top-0 right-0 p-2 bg-slate-700/20 rounded-bl-xl border-b border-l border-slate-600/50">
-                            <i class="ri-medal-fill text-xl text-slate-300"></i>
+                    <% } else if (index === 1) { %>
+                        <div class="absolute top-0 right-0 p-1.5 md:p-2 bg-slate-700/20 rounded-bl-xl border-b border-l border-slate-600/50 z-10">
+                            <i class="ri-medal-fill text-lg md:text-xl text-slate-300"></i>
                         </div>
-                    <% } %>
-                    <% if (index === 2) { %>
-                        <div class="absolute top-0 right-0 p-2 bg-orange-700/10 rounded-bl-xl border-b border-l border-orange-700/20">
-                            <i class="ri-medal-fill text-xl text-orange-600"></i>
+                    <% } else if (index === 2) { %>
+                        <div class="absolute top-0 right-0 p-1.5 md:p-2 bg-orange-700/10 rounded-bl-xl border-b border-l border-orange-700/20 z-10">
+                            <i class="ri-medal-fill text-lg md:text-xl text-orange-600"></i>
                         </div>
                     <% } %>
 
-                    <div class="w-14 h-14 rounded-full border-2 border-slate-700 p-0.5 bg-slate-900 overflow-hidden shrink-0">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-slate-700 p-0.5 bg-slate-900 overflow-hidden shrink-0">
                         <% if (u._id.image) { %>
                             <img src="<%= u._id.image %>" class="w-full h-full rounded-full object-cover">
                         <% } else { %>
-                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-lg font-bold"><%= u.authorName.charAt(0) %></div>
+                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-sm md:text-lg font-bold"><%= u.authorName.charAt(0) %></div>
                         <% } %>
                     </div>
 
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2 truncate">
-                            <%= u._id.displayName %>
+                    <div class="flex-1 min-w-0 pr-8 md:pr-0"> 
+                        
+                        <h3 class="text-base md:text-lg font-bold text-white flex flex-wrap items-center gap-2">
+                            <span class="truncate max-w-[150px] md:max-w-xs"><%= u._id.displayName %></span>
                             <% if (index < 3) { %> 
-                                <span class="text-[10px] bg-yellow-500/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/20 uppercase font-bold tracking-wider shrink-0">Top Rated</span> 
+                                <span class="hidden sm:inline-block text-[10px] bg-yellow-500/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/20 uppercase font-bold tracking-wider shrink-0">Top Rated</span> 
                             <% } %>
                         </h3>
-                        <p class="text-slate-500 text-sm truncate"><%= u._id.bio || "Available for collaboration." %></p>
+                        
+                        <p class="text-slate-500 text-xs md:text-sm truncate"><%= u._id.bio || "Available for collaboration." %></p>
+                        
+                        <div class="flex items-center gap-4 mt-1.5 sm:hidden">
+                            <div class="text-[11px] font-bold text-green-400 flex items-center gap-1 bg-green-500/5 px-1.5 py-0.5 rounded">
+                                <i class="ri-arrow-up-circle-line"></i> <%= u.totalUpvotes %>
+                            </div>
+                            <div class="text-[11px] font-bold text-blue-500 flex items-center gap-1 bg-blue-500/5 px-1.5 py-0.5 rounded">
+                                <i class="ri-lightbulb-line"></i> <%= u.totalIdeas %>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex gap-6 text-right mr-4 md:mr-10 shrink-0">
+                    <div class="hidden sm:flex gap-6 text-right mr-4 md:mr-10 shrink-0">
                         <div>
-                            <div class="text-xl font-bold text-green-400"><%= u.totalUpvotes %></div>
-                            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Upvotes</div>
+                            <div class="text-lg md:text-xl font-bold text-green-400"><%= u.totalUpvotes %></div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Upvotes</div>
                         </div>
                         <div>
-                            <div class="text-xl font-bold text-blue-500"><%= u.totalIdeas %></div>
+                            <div class="text-lg md:text-xl font-bold text-blue-500"><%= u.totalIdeas %></div>
                             <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Ideas</div>
                         </div>
                     </div>
@@ -68,5 +87,27 @@
             <% }) %>
         </div>
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

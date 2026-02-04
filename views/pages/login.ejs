@@ -11,25 +11,30 @@
 </head>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-md bg-[#11161D] border border-slate-800 p-8 rounded-3xl shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-500 italic mb-2 tracking-tighter">IDEATE</h1>
-            <p class="text-slate-500">Welcome back, Innovator.</p>
+    <div class="w-full max-w-md bg-[#11161D] border border-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+        
+        <a href="/" class="absolute top-4 left-4 text-slate-600 hover:text-white transition p-2">
+            <i class="ri-arrow-left-line text-xl"></i>
+        </a>
+
+        <div class="text-center mb-6 md:mb-8 mt-2">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-500 italic mb-2 tracking-tighter">IDEATE</h1>
+            <p class="text-slate-500 text-sm md:text-base">Welcome back, Innovator.</p>
         </div>
 
         <% if (locals.error) { %>
-            <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold text-center flex items-center justify-center gap-2">
+            <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold text-center flex items-center justify-center gap-2 animate-pulse">
                 <i class="ri-error-warning-line text-lg"></i> <%= error %>
             </div>
         <% } %>
 
-        <form id="loginForm" action="/login" method="POST" class="space-y-6">
+        <form id="loginForm" action="/login" method="POST" class="space-y-5 md:space-y-6">
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Email or Username</label>
                 <input type="text" 
                        name="identifier" 
                        placeholder="email or @username"
-                       class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none text-white transition placeholder:text-slate-700" 
+                       class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl focus:border-blue-500 outline-none text-white transition placeholder:text-slate-700 text-sm md:text-base" 
                        required>
             </div>
 
@@ -40,24 +45,24 @@
                            id="loginPassword"
                            name="password" 
                            placeholder="••••••••"
-                           class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none text-white transition placeholder:text-slate-700" 
+                           class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl focus:border-blue-500 outline-none text-white transition placeholder:text-slate-700 text-sm md:text-base pr-12" 
                            required>
                     
                     <button type="button" 
                             onclick="togglePasswordVisibility()" 
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors p-1">
                         <i id="eyeIcon" class="ri-eye-line text-xl"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/40 active:scale-[0.98] flex items-center justify-center gap-2">
+            <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 md:py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/40 active:scale-[0.98] flex items-center justify-center gap-2 text-sm md:text-base">
                 <i id="btnLoader" class="ri-loader-4-line animate-spin text-xl hidden"></i>
                 <span id="btnText">Sign In</span>
             </button>
         </form>
 
-        <p class="text-center mt-8 text-slate-500 text-sm">
+        <p class="text-center mt-6 md:mt-8 text-slate-500 text-sm">
             New here? <a href="/signup" class="text-blue-400 font-bold hover:underline">Create an account</a>
         </p>
     </div>
@@ -75,14 +80,17 @@
             }
         }
 
-        // --- NEW: Loading Logic ---
+        // Loading State Logic
         document.getElementById('loginForm').addEventListener('submit', function() {
             const btn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
             const loader = document.getElementById('btnLoader');
 
+            // Disable button to prevent double submit
             btn.disabled = true;
             btn.classList.add('opacity-70', 'cursor-not-allowed');
+            
+            // Show loader
             btnText.innerText = "Verifying...";
             loader.classList.remove('hidden');
         });

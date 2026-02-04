@@ -2,30 +2,40 @@
 <html lang="en">
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
-    <main class="ml-64 flex-1 p-8">
-        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
+
+    <main class="ml-0 md:ml-64 flex-1 p-4 md:p-8 w-full transition-all duration-300">
+        
+        <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 flex items-center gap-3">
             <i class="ri-notification-3-fill text-blue-500"></i> Notifications
         </h2>
 
-        <div class="max-w-3xl space-y-4">
+        <div class="max-w-3xl space-y-3 md:space-y-4">
             <% if (notifications && notifications.length > 0) { %>
                 <% notifications.forEach(notif => { %>
                     <div onclick="markRead(this, '<%= notif._id %>', '<%= notif.link %>')" 
-                         class="cursor-pointer block border p-4 rounded-xl transition flex items-center gap-4 relative group
+                         class="cursor-pointer block border p-3 md:p-4 rounded-xl transition flex items-start md:items-center gap-3 md:gap-4 relative group
                          <%= notif.read ? 'bg-slate-900 border-slate-800' : 'bg-blue-900/10 border-blue-500/30' %>
                          <%= notif.type === 'mention' && !notif.read ? 'border-purple-500/50 bg-purple-500/5' : '' %>">
                         
                         <% if (notif.senders && notif.senders.length > 0 && notif.senders[0].image) { %>
-                            <div class="relative w-12 h-12 shrink-0">
-                                <img src="<%= notif.senders[0].image %>" class="w-12 h-12 rounded-full object-cover border border-slate-700">
+                            <div class="relative w-10 h-10 md:w-12 md:h-12 shrink-0">
+                                <img src="<%= notif.senders[0].image %>" class="w-full h-full rounded-full object-cover border border-slate-700">
                                 
-                                <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] border border-[#0F172A]
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center text-[10px] border border-[#0F172A]
                                     <%= notif.type === 'raise' ? 'bg-green-500 text-white' : 
                                        notif.type === 'follow' ? 'bg-blue-500 text-white' : 
                                        notif.type === 'mention' ? 'bg-purple-500 text-white' : 
                                        'bg-yellow-500 text-white' %>">
-                                    
                                     <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
                                                  notif.type === 'follow' ? 'ri-user-add-fill' : 
                                                  notif.type === 'mention' ? 'ri-at-line' : 
@@ -33,12 +43,11 @@
                                 </div>
                             </div>
                         <% } else { %>
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shrink-0
                                 <%= notif.type === 'raise' ? 'bg-green-500/10 text-green-500' : 
                                    notif.type === 'follow' ? 'bg-blue-500/10 text-blue-500' : 
                                    notif.type === 'mention' ? 'bg-purple-500/10 text-purple-500' : 
                                    'bg-yellow-500/10 text-yellow-500' %>">
-                                
                                 <i class="<%= notif.type === 'raise' ? 'ri-arrow-up-circle-fill' : 
                                              notif.type === 'follow' ? 'ri-user-add-fill' : 
                                              notif.type === 'mention' ? 'ri-at-line' : 
@@ -46,29 +55,28 @@
                             </div>
                         <% } %>
                         
-                        <div class="flex-1">
-                            <p class="text-sm text-slate-300">
+                        <div class="flex-1 min-w-0 pr-6"> <p class="text-xs md:text-sm text-slate-300 leading-snug mb-1">
                                 <span class="font-bold text-white"><%= notif.latestSenderName %></span> 
                                 
                                 <% if(notif.type === 'mention') { %>
                                     <span class="text-purple-400 font-medium">mentioned you</span> in a comment:
-                                    <span class="italic text-slate-400">"<%= notif.message.split(': "')[1] || 'View comment' %>"</span>
+                                    <span class="italic text-slate-400 break-words block mt-1">"<%= notif.message.split(': "')[1] || 'View comment' %>"</span>
                                 <% } else { %>
                                     <%= notif.message %>
                                 <% } %>
                             </p>
-                            <span class="text-xs text-slate-600"><%= notif.updatedAt.toLocaleDateString() %></span>
-                        </div>
-
-                        <% if (notif.type === 'follow' && notif.senders.length === 1) { %>
-                            <% const senderId = notif.senders[0]._id; %>
-                            <% if(!user.following.includes(senderId)) { %>
-                                <button onclick="event.stopPropagation(); toggleFollow(this, '<%= senderId %>')" 
-                                    class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg">
-                                    Follow Back
-                                </button>
+                            <span class="text-[10px] md:text-xs text-slate-600 block"><%= notif.updatedAt.toLocaleDateString() %></span>
+                            
+                            <% if (notif.type === 'follow' && notif.senders.length === 1) { %>
+                                <% const senderId = notif.senders[0]._id; %>
+                                <% if(!user.following.includes(senderId)) { %>
+                                    <button onclick="event.stopPropagation(); toggleFollow(this, '<%= senderId %>')" 
+                                        class="mt-2 text-[10px] md:text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg">
+                                        Follow Back
+                                    </button>
+                                <% } %>
                             <% } %>
-                        <% } %>
+                        </div>
 
                         <% if (!notif.read) { %>
                             <span class="w-2 h-2 rounded-full absolute top-4 right-4 
@@ -78,8 +86,8 @@
                     </div>
                 <% }) %>
             <% } else { %>
-                <div class="text-center py-20 text-slate-500">
-                    <i class="ri-notification-off-line text-4xl mb-2 block"></i>
+                <div class="text-center py-16 md:py-20 text-slate-500">
+                    <i class="ri-notification-off-line text-3xl md:text-4xl mb-2 block opacity-50"></i>
                     No notifications yet.
                 </div>
             <% } %>
@@ -87,6 +95,28 @@
     </main>
 
     <script>
+        // === 1. SIDEBAR TOGGLE ===
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // === 2. MARK READ LOGIC ===
         async function markRead(el, id, link) {
             // Visual Update
             el.classList.remove('bg-blue-900/10', 'border-blue-500/30', 'bg-purple-500/5', 'border-purple-500/50');

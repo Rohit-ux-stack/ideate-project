@@ -1,51 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-[#0F172A] text-slate-200 flex min-h-screen">
+
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-12">
-        <div class="max-w-2xl mx-auto bg-[#11161D] border border-slate-800 p-10 rounded-3xl shadow-2xl">
-            
-            <form action="/profile/update" method="POST" enctype="multipart/form-data" class="space-y-6">
-                
-                <div class="flex items-center space-x-6 mb-10">
-                    <div class="relative group">
-                        <img src="<%= user.image %>" class="w-24 h-24 rounded-full border-4 border-blue-500/30 object-cover" id="preview">
-                        
-                        <input type="file" name="profileImage" id="fileInput" class="hidden" accept="image/*" onchange="previewImage(event)">
-                        
-                        <label for="fileInput" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                            <span class="text-[10px] font-bold">CHANGE</span>
-                        </label>
+    <main class="ml-0 md:ml-64 flex-1 p-0 md:p-8 transition-all duration-300 w-full">
+
+        <!-- MOBILE TOP BAR -->
+        <div class="md:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-[#0F172A] sticky top-0 z-40">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+
+            <!-- HEADER + AVATAR -->
+            <div class="relative mb-28 md:mb-24">
+
+                <!-- COVER -->
+                <div class="h-56 md:h-64 w-full bg-gradient-to-r from-blue-600 to-purple-600 md:rounded-b-3xl relative overflow-hidden">
+                    <div class="absolute inset-0 bg-black/20"></div>
+
+                    <a href="/" class="absolute top-4 left-4 md:top-8 md:left-8 bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-full backdrop-blur-md transition flex items-center gap-2 text-sm font-bold border border-white/10 z-10">
+                        <i class="ri-arrow-left-line"></i> Back
+                    </a>
+                </div>
+
+                <!-- PROFILE IMAGE -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 top-[170px] md:top-[190px]">
+                    <div class="w-28 h-28 md:w-40 md:h-40 rounded-full border-4 border-[#0F172A] bg-[#0F172A] overflow-hidden shadow-2xl">
+
+                        <% if (targetUser.image) { %>
+                            <img src="<%= targetUser.image %>" class="w-full h-full object-cover" alt="Profile">
+                        <% } else { %>
+                            <div class="w-full h-full bg-slate-800 flex items-center justify-center text-3xl md:text-4xl font-bold text-white">
+                                <%= targetUser.displayName.charAt(0) %>
+                            </div>
+                        <% } %>
+
                     </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-white"><%= user.displayName %></h1>
-                        <p class="text-slate-500 text-sm">Update your public profile</p>
+                </div>
+
+            </div>
+
+            <!-- USER INFO -->
+            <div class="text-center px-4 pt-20 md:pt-24 mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">
+                    <%= targetUser.displayName %>
+                </h1>
+                <p class="text-blue-400 font-medium mb-4">@<%= targetUser.username %></p>
+
+                <% if (targetUser.bio) { %>
+                    <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
+                        <%= targetUser.bio %>
+                    </p>
+                <% } %>
+
+                <!-- STATS -->
+                <div class="flex justify-center gap-6 mt-6 flex-wrap">
+                    <a href="/user/<%= targetUser._id %>/followers" class="text-center hover:text-blue-400 transition">
+                        <div class="text-xl font-bold text-white"><%= targetUser.followers.length %></div>
+                        <div class="text-xs text-slate-500 uppercase font-bold">Followers</div>
+                    </a>
+
+                    <a href="/user/<%= targetUser._id %>/following" class="text-center hover:text-blue-400 transition">
+                        <div class="text-xl font-bold text-white"><%= targetUser.following.length %></div>
+                        <div class="text-xs text-slate-500 uppercase font-bold">Following</div>
+                    </a>
+
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-green-400"><%= ideas.length %></div>
+                        <div class="text-xs text-slate-500 uppercase font-bold">Ideas</div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Display Name</label>
-                    <input type="text" name="displayName" value="<%= user.displayName %>" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none">
+                <!-- ACTION BUTTON -->
+                <div class="mt-8 flex justify-center gap-4">
+                    <% if (user && user._id.toString() === targetUser._id.toString()) { %>
+                        <a href="/profile" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 border border-slate-700">
+                            <i class="ri-edit-line"></i> Edit Profile
+                        </a>
+                    <% } else if (user) { %>
+                        <button onclick="toggleUserFollow(this, '<%= targetUser._id %>')"
+                            class="px-8 py-2.5 rounded-full font-bold flex items-center gap-2 transition shadow-lg
+                            <%= user.following.includes(targetUser._id) 
+                                ? 'bg-slate-800 text-slate-300 border border-slate-700' 
+                                : 'bg-blue-600 text-white hover:bg-blue-500' %>">
+                            <i class="<%= user.following.includes(targetUser._id) ? 'ri-user-unfollow-line' : 'ri-user-add-line' %>"></i>
+                            <span><%= user.following.includes(targetUser._id) ? 'Unfollow' : 'Follow' %></span>
+                        </button>
+                    <% } %>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Bio</label>
-                    <textarea name="bio" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl h-32 focus:border-blue-500 outline-none"><%= user.bio %></textarea>
+            <!-- IDEAS -->
+            <div class="px-4 md:px-0 pb-12">
+                <h3 class="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-4">
+                    Recent Innovations
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <% if (ideas.length > 0) { %>
+                        <% ideas.forEach(idea => { %>
+                            <div onclick="window.location.href='/post/<%= idea._id %>'"
+                                class="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/30 transition cursor-pointer">
+
+                                <div class="flex justify-between mb-3">
+                                    <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded uppercase">
+                                        <%= idea.category %>
+                                    </span>
+                                    <span class="text-xs text-slate-500">
+                                        <%= idea.createdAt.toLocaleDateString() %>
+                                    </span>
+                                </div>
+
+                                <h4 class="text-lg font-bold text-white mb-2 line-clamp-1 hover:text-blue-400">
+                                    <%= idea.title %>
+                                </h4>
+
+                                <p class="text-slate-400 text-sm line-clamp-2 mb-4">
+                                    <%= idea.description %>
+                                </p>
+
+                                <% if (idea.images && idea.images.length > 0) { %>
+                                    <img src="<%= idea.images[0].src %>"
+                                         class="w-full h-32 object-cover rounded-lg border border-slate-700 mb-4">
+                                <% } %>
+
+                                <div class="flex gap-4 text-sm text-slate-500">
+                                    <span><i class="ri-arrow-up-circle-line"></i> <%= idea.upvotes.length %></span>
+                                    <span><i class="ri-chat-3-line"></i> <%= idea.comments.length %></span>
+                                    <span><i class="ri-eye-line"></i> <%= idea.views %></span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="col-span-full text-center py-12 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed">
+                            <i class="ri-lightbulb-off-line text-3xl text-slate-600 mb-2 block"></i>
+                            <span class="text-slate-500">No ideas posted yet.</span>
+                        </div>
+                    <% } %>
                 </div>
+            </div>
 
-                <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg">Save Changes</button>
-            </form>
         </div>
     </main>
 
+    <!-- JS -->
     <script>
-        function previewImage(event) {
-            const reader = new FileReader();
-            reader.onload = function(){ document.getElementById('preview').src = reader.result; };
-            reader.readAsDataURL(event.target.files[0]);
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) sidebar.classList.toggle('-translate-x-full');
+        };
+
+        async function toggleUserFollow(btn, userId) {
+            const res = await fetch(`/follow/${userId}`);
+            const data = await res.json();
+            if (data.success) location.reload();
+            if (data.error === "Login required") window.location.href = "/login";
         }
     </script>
+
 </body>
 </html>

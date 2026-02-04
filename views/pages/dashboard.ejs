@@ -32,35 +32,41 @@
 
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1">
-        <header class="h-20 border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-30">
-            <div class="w-1/3 relative group">
+    <main class="ml-0 md:ml-64 flex-1 transition-all duration-300 w-full">
+        
+        <header class="h-20 border-b border-slate-800 flex items-center justify-between px-4 md:px-8 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-30 gap-4">
+            
+            <button onclick="window.toggleSidebar()" class="md:hidden text-slate-400 hover:text-white text-2xl focus:outline-none shrink-0 p-2 cursor-pointer z-50">
+                <i class="ri-menu-line"></i>
+            </button>
+
+            <div class="flex-1 md:w-1/3 relative group max-w-lg">
                 <i class="ri-search-line absolute left-4 top-3 text-slate-500 group-focus-within:text-blue-500 transition"></i>
-                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search ideas or users..." 
+                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search..." 
                        class="w-full bg-slate-900 border border-slate-700 rounded-full py-2.5 pl-12 pr-6 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all text-white placeholder-slate-500" autocomplete="off">
                 <div id="userSearchResults" class="search-results-dropdown"></div>
             </div>
 
             <% if (user) { %>
                 <button onclick="document.getElementById('postModal').classList.replace('hidden', 'flex')" 
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+                        class="bg-blue-600 hover:bg-blue-500 text-white w-10 h-10 md:w-auto md:px-6 md:py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2 shrink-0">
                     <i class="ri-add-line text-xl"></i>
-                    <span>Post Idea</span>
+                    <span class="hidden md:inline">Post Idea</span>
                 </button>
             <% } else { %>
-                <div class="flex items-center gap-4">
-                    <a href="/login" class="text-slate-400 hover:text-white font-bold text-sm px-4 py-2 hover:bg-slate-800 rounded-full transition">Login</a>
-                    <a href="/signup" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition">Sign Up</a>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="/login" class="text-slate-400 hover:text-white font-bold text-sm px-4 py-2 hover:bg-slate-800 rounded-full transition hidden md:block">Login</a>
+                    <a href="/signup" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full font-bold shadow-lg shadow-blue-900/20 transition text-sm">Sign Up</a>
                 </div>
             <% } %>
         </header>
 
-        <div class="p-8">
+        <div class="p-4 md:p-8">
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white mb-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
                     <%= typeof pageTitle !== 'undefined' ? pageTitle : 'Trending Innovations' %>
                 </h2>
-                <p class="text-slate-500">Discover and support the next big thing.</p>
+                <p class="text-slate-500 text-sm md:text-base">Discover and support the next big thing.</p>
             </div>
             
             <div id="ideaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -88,7 +94,7 @@
                                     </div>
                                     
                                     <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-slate-200 leading-tight group-hover:text-blue-400 transition truncate w-32"><%= idea.author %></span>
+                                        <span class="text-sm font-bold text-slate-200 leading-tight group-hover:text-blue-400 transition truncate w-24 md:w-32"><%= idea.author %></span>
                                         <span class="text-[11px] font-medium text-blue-400/80">@<%= idea.authorUsername %></span>
                                         
                                         <% if (user && user._id.toString() !== idea.authorId.toString()) { %>
@@ -147,6 +153,41 @@
     <%- include('../partials/postModal') %>
 
     <script>
+        // === GLOBAL TOGGLE FUNCTION ===
+        window.toggleSidebar = function() {
+            console.log("Button clicked!"); // Debug check
+            
+            const sidebar = document.getElementById('mobileSidebar');
+            
+            // Check if Sidebar Exists
+            if (!sidebar) {
+                console.error("ERROR: Sidebar element not found! Check views/partials/sidebar.ejs");
+                alert("Error: 'mobileSidebar' ID nahi mila! Please check sidebar.ejs file.");
+                return;
+            }
+
+            // Toggle Class
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full'); // Show Sidebar
+            } else {
+                sidebar.classList.add('-translate-x-full'); // Hide Sidebar
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && 
+                sidebar &&
+                !sidebar.contains(e.target) && 
+                !menuBtn && 
+                !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+            }
+        });
+
         async function dashboardToggleFollow(event, btn, userId) {
             event.preventDefault();
             event.stopPropagation();

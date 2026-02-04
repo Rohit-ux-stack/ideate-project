@@ -1,45 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
-<body class="bg-[#0F172A] text-slate-200 min-h-screen flex">
+<body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-10">
-        <h1 class="text-3xl font-bold mb-8">Edit Innovation</h1>
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-10 transition-all duration-300 w-full">
+        
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
 
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-3xl">
+        <h1 class="text-2xl md:text-3xl font-bold mb-8">Edit Innovation</h1>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-2xl max-w-3xl">
             <form action="/post/<%= idea._id %>/edit" method="POST" enctype="multipart/form-data" class="space-y-6">
                 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Project Title</label>
-                    <input type="text" name="title" value="<%= idea.title %>" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none" required>
+                    <input type="text" name="title" value="<%= idea.title %>" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none transition-colors" required>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Category</label>
-                    <select name="category" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none">
-                        <option value="Tech" <%= idea.category === 'Tech' ? 'selected' : '' %>>Tech Upgrade</option>
-                        <option value="Startup" <%= idea.category === 'Startup' ? 'selected' : '' %>>Startup Idea</option>
-                        <option value="Social" <%= idea.category === 'Social' ? 'selected' : '' %>>Social Impact</option>
-                    </select>
+                    <div class="relative">
+                        <select name="category" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none appearance-none cursor-pointer">
+                            <option value="Tech" <%= idea.category === 'Tech' ? 'selected' : '' %>>Tech Upgrade</option>
+                            <option value="Startup" <%= idea.category === 'Startup' ? 'selected' : '' %>>Startup Idea</option>
+                            <option value="Social" <%= idea.category === 'Social' ? 'selected' : '' %>>Social Impact</option>
+                        </select>
+                        <i class="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Description</label>
-                    <textarea name="description" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl h-48 focus:border-blue-500 outline-none resize-none" required><%= idea.description %></textarea>
+                    <textarea name="description" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl h-48 focus:border-blue-500 outline-none resize-none leading-relaxed" required><%= idea.description %></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Update Images (Note: Uploading new images will replace old ones)</label>
-                    <input type="file" name="ideaImages" multiple accept="image/*" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl text-sm file:bg-blue-600 file:border-0 file:rounded-full file:px-4 file:py-1 file:text-white file:font-bold">
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Update Images (Optional)</label>
+                    <div class="relative group">
+                        <input type="file" name="ideaImages" multiple accept="image/*" class="w-full bg-[#0B1120] border border-slate-800 p-4 rounded-xl text-sm file:bg-slate-800 file:border-0 file:rounded-full file:px-4 file:py-1 file:text-blue-400 file:font-bold file:mr-4 hover:file:bg-slate-700 transition cursor-pointer">
+                        <p class="text-[10px] text-slate-500 mt-2 italic">* Uploading new images will replace existing ones.</p>
+                    </div>
                 </div>
 
-                <div class="flex gap-4 pt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition">Update Post</button>
-                    <a href="/post/<%= idea._id %>" class="px-8 py-4 rounded-xl font-bold text-slate-500 hover:text-white transition">Cancel</a>
+                <div class="flex flex-col md:flex-row gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-900/20">
+                        Update Post
+                    </button>
+                    <a href="/post/<%= idea._id %>" class="px-8 py-4 rounded-xl font-bold text-slate-500 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition text-center">
+                        Cancel
+                    </a>
                 </div>
             </form>
         </div>
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

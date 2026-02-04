@@ -2,42 +2,49 @@
 <html lang="en">
 <%- include('../../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-12 max-w-6xl mx-auto">
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-12 max-w-6xl mx-auto transition-all duration-300 w-full">
         
-        <!-- Hero -->
-        <div class="text-center mb-20">
-            <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-6">We Are Ideate.</h1>
-            <p class="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-6"></div> </div>
+
+        <div class="text-center mb-12 md:mb-20">
+            <h1 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4 md:mb-6 leading-tight">
+                We Are Ideate.
+            </h1>
+            <p class="text-base md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed px-2">
                 The world's first open collaborative platform designed exclusively for dreamers, builders, thinkers, and innovators who want to turn "what if" into "what is".
             </p>
         </div>
 
-        <!-- Core Values -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 hover:border-blue-500/30 transition">
-                <i class="ri-lightbulb-flash-line text-4xl text-yellow-400 mb-4"></i>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-16 md:mb-24">
+            <div class="bg-slate-900/50 p-6 md:p-8 rounded-3xl border border-slate-800 hover:border-blue-500/30 transition hover:-translate-y-1 duration-300">
+                <i class="ri-lightbulb-flash-line text-4xl text-yellow-400 mb-4 inline-block"></i>
                 <h3 class="text-xl font-bold text-white mb-3">Innovation First</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">We believe ideas are the currency of the future. No idea is too small, too crazy, or too ambitious. Every breakthrough starts with a single thought.</p>
             </div>
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 hover:border-green-500/30 transition">
-                <i class="ri-group-2-line text-4xl text-green-400 mb-4"></i>
+            <div class="bg-slate-900/50 p-6 md:p-8 rounded-3xl border border-slate-800 hover:border-green-500/30 transition hover:-translate-y-1 duration-300">
+                <i class="ri-group-2-line text-4xl text-green-400 mb-4 inline-block"></i>
                 <h3 class="text-xl font-bold text-white mb-3">Community Power</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Great things are never built alone. We connect thinkers, designers, developers, and entrepreneurs into one powerful collaborative ecosystem.</p>
             </div>
-            <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 hover:border-purple-500/30 transition">
-                <i class="ri-shield-star-line text-4xl text-purple-400 mb-4"></i>
+            <div class="bg-slate-900/50 p-6 md:p-8 rounded-3xl border border-slate-800 hover:border-purple-500/30 transition hover:-translate-y-1 duration-300">
+                <i class="ri-shield-star-line text-4xl text-purple-400 mb-4 inline-block"></i>
                 <h3 class="text-xl font-bold text-white mb-3">Safe Space</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Constructive criticism fuels growth. Toxicity kills creativity. Ideate is built to protect psychological safety and respectful discourse.</p>
             </div>
         </div>
 
-        <!-- Our Story -->
-        <div class="bg-slate-900 rounded-3xl p-12 border border-slate-800 flex flex-col md:flex-row gap-12 items-center mb-24">
-            <div class="flex-1">
-                <h2 class="text-3xl font-bold text-white mb-4">Our Story</h2>
-                <div class="space-y-4 text-slate-400 leading-relaxed">
+        <div class="bg-slate-900 rounded-3xl p-6 md:p-12 border border-slate-800 flex flex-col md:flex-row gap-8 md:gap-12 items-center mb-16 md:mb-24">
+            <div class="flex-1 order-2 md:order-1">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Our Story</h2>
+                <div class="space-y-4 text-slate-400 text-sm md:text-base leading-relaxed">
                     <p>It started in a small dorm room, late at night, with conversations every creator has at least once: “What if this actually works?” “What if this idea could become something real?”</p>
                     <p>The world had platforms for finished work — GitHub for code, Dribbble for design, LinkedIn for careers — but no true home for raw ideas.</p>
                     <p>Most ideas never see daylight. They remain trapped in notebooks, chats, or half-written documents. Not because they are bad, but because creators lack feedback, validation, and belief.</p>
@@ -45,23 +52,22 @@
                     <p>Today, Ideate is a growing ecosystem of students, founders, engineers, artists, and dreamers turning early thoughts into startups, projects, and movements.</p>
                 </div>
             </div>
-            <div class="w-full md:w-1/3 bg-slate-800 h-64 rounded-2xl flex items-center justify-center border border-slate-700">
+            <div class="w-full md:w-1/3 bg-slate-800 h-48 md:h-64 rounded-2xl flex items-center justify-center border border-slate-700 order-1 md:order-2">
                 <i class="ri-team-line text-6xl text-slate-600"></i>
             </div>
         </div>
 
-        <!-- Philosophy -->
-        <div class="bg-slate-900/50 p-10 rounded-3xl border border-slate-800 mb-24">
-            <h2 class="text-3xl font-bold text-white mb-4">Our Philosophy</h2>
-            <p class="text-slate-400 leading-relaxed mb-3">Ideas are living things. They grow when shared, evolve when challenged, and die when hidden.</p>
-            <p class="text-slate-400 leading-relaxed mb-3">We believe progress is born from dialogue, not silence. From collaboration, not competition.</p>
-            <p class="text-slate-400 leading-relaxed">Every revolution begins as a fragile thought. Our mission is to protect and nurture those thoughts.</p>
+        <div class="bg-slate-900/50 p-6 md:p-10 rounded-3xl border border-slate-800 mb-16 md:mb-24 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4 relative z-10">Our Philosophy</h2>
+            <p class="text-slate-400 leading-relaxed mb-3 relative z-10">Ideas are living things. They grow when shared, evolve when challenged, and die when hidden.</p>
+            <p class="text-slate-400 leading-relaxed mb-3 relative z-10">We believe progress is born from dialogue, not silence. From collaboration, not competition.</p>
+            <p class="text-slate-400 leading-relaxed relative z-10">Every revolution begins as a fragile thought. Our mission is to protect and nurture those thoughts.</p>
         </div>
 
-        <!-- Who Is Ideate For -->
-        <div class="bg-slate-900 rounded-3xl p-10 border border-slate-800 mb-24">
-            <h2 class="text-3xl font-bold text-white mb-6">Who Is Ideate For?</h2>
-            <ul class="space-y-3 text-slate-400 list-disc list-inside">
+        <div class="bg-slate-900 rounded-3xl p-6 md:p-10 border border-slate-800 mb-16 md:mb-24">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-6">Who Is Ideate For?</h2>
+            <ul class="space-y-3 text-slate-400 list-disc list-inside text-sm md:text-base">
                 <li>Students with bold ideas and no roadmap yet.</li>
                 <li>Entrepreneurs validating their next startup.</li>
                 <li>Designers and developers seeking collaborators.</li>
@@ -70,29 +76,50 @@
             </ul>
         </div>
 
-        <!-- Vision & Mission -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-24">
-            <div class="bg-slate-900/50 p-10 rounded-3xl border border-slate-800">
-                <h3 class="text-2xl font-bold text-white mb-3">Our Vision</h3>
-                <p class="text-slate-400 leading-relaxed">To become the global home of ideas, where innovation is open, inclusive, and community-driven.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-16 md:mb-24">
+            <div class="bg-slate-900/50 p-6 md:p-10 rounded-3xl border border-slate-800">
+                <h3 class="text-xl md:text-2xl font-bold text-white mb-3">Our Vision</h3>
+                <p class="text-slate-400 leading-relaxed text-sm md:text-base">To become the global home of ideas, where innovation is open, inclusive, and community-driven.</p>
             </div>
-            <div class="bg-slate-900/50 p-10 rounded-3xl border border-slate-800">
-                <h3 class="text-2xl font-bold text-white mb-3">Our Mission</h3>
-                <p class="text-slate-400 leading-relaxed">To empower creators with feedback, collaboration, and visibility at the earliest stage of creation.</p>
+            <div class="bg-slate-900/50 p-6 md:p-10 rounded-3xl border border-slate-800">
+                <h3 class="text-xl md:text-2xl font-bold text-white mb-3">Our Mission</h3>
+                <p class="text-slate-400 leading-relaxed text-sm md:text-base">To empower creators with feedback, collaboration, and visibility at the earliest stage of creation.</p>
             </div>
         </div>
 
-        <!-- Future -->
-        <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-12 rounded-3xl border border-slate-800 text-center">
-            <h2 class="text-3xl font-bold text-white mb-4">The Road Ahead</h2>
-            <p class="text-slate-400 leading-relaxed max-w-3xl mx-auto mb-3">
+        <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-8 md:p-12 rounded-3xl border border-slate-800 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">The Road Ahead</h2>
+            <p class="text-slate-400 leading-relaxed max-w-3xl mx-auto mb-3 text-sm md:text-base">
                 We are building more than a platform. We are building the world's largest open innovation network.
             </p>
-            <p class="text-slate-400 leading-relaxed max-w-3xl mx-auto">
+            <p class="text-slate-400 leading-relaxed max-w-3xl mx-auto text-sm md:text-base">
                 Because the next big revolution will not start in a boardroom — it will start with a single idea, shared fearlessly.
             </p>
         </div>
 
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside (Mobile UX)
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,74 +2,106 @@
 <html lang="en">
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-8">
-        <h2 class="text-3xl font-bold text-white mb-8">Performance Analytics</h2>
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-12 w-full transition-all duration-300">
+        
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8">Performance Analytics</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+            <div class="bg-slate-900/50 border border-slate-800 p-5 md:p-6 rounded-2xl">
                 <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Total Ideas</div>
-                <div class="text-4xl font-bold text-blue-500"><%= stats.ideaCount %></div>
+                <div class="text-3xl md:text-4xl font-bold text-blue-500"><%= stats.ideaCount %></div>
             </div>
 
-            <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
+            <div class="bg-slate-900/50 border border-slate-800 p-5 md:p-6 rounded-2xl">
                 <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Total Views</div>
-                <div class="text-4xl font-bold text-purple-500"><%= stats.totalViews %></div>
+                <div class="text-3xl md:text-4xl font-bold text-purple-500"><%= stats.totalViews %></div>
             </div>
 
-            <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
+            <div class="bg-slate-900/50 border border-slate-800 p-5 md:p-6 rounded-2xl">
                 <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Total Upvotes</div>
-                <div class="text-4xl font-bold text-green-500"><%= stats.totalUpvotes %></div>
+                <div class="text-3xl md:text-4xl font-bold text-green-500"><%= stats.totalUpvotes %></div>
             </div>
 
-            <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
+            <div class="bg-slate-900/50 border border-slate-800 p-5 md:p-6 rounded-2xl">
                 <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Engagements</div>
-                <div class="text-4xl font-bold text-yellow-500"><%= stats.totalComments %></div>
+                <div class="text-3xl md:text-4xl font-bold text-yellow-500"><%= stats.totalComments %></div>
             </div>
         </div>
 
-        <h3 class="text-xl font-bold text-white mb-6">Your Top Performers</h3>
+        <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Your Top Performers</h3>
         
         <div class="space-y-4">
             <% if (ideas && ideas.length > 0) { %>
                 <% ideas.forEach(idea => { %>
                     <div onclick="window.location.href='/post/<%= idea._id %>'" 
-                         class="group bg-slate-900/30 border border-slate-800 hover:border-blue-500/30 hover:bg-slate-900 p-4 rounded-xl flex items-center gap-5 transition cursor-pointer">
+                         class="group bg-slate-900/30 border border-slate-800 hover:border-blue-500/30 hover:bg-slate-900 p-3 md:p-4 rounded-xl flex items-center gap-4 md:gap-5 transition cursor-pointer">
                         
-                        <div class="w-16 h-16 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden border border-slate-700 relative">
+                        <div class="w-12 h-12 md:w-16 md:h-16 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden border border-slate-700 relative">
                             <% if (idea.images && idea.images.length > 0) { %>
                                 <img src="<%= idea.images[0].src %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             <% } else { %>
-                                <i class="ri-lightbulb-flash-line text-2xl text-slate-600"></i>
+                                <i class="ri-lightbulb-flash-line text-xl md:text-2xl text-slate-600"></i>
                             <% } %>
                         </div>
 
-                        <div class="flex-1">
-                            <h4 class="text-lg font-bold text-slate-200 group-hover:text-blue-400 transition line-clamp-1"><%= idea.title %></h4>
-                            <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                        <div class="flex-1 min-w-0"> <h4 class="text-base md:text-lg font-bold text-slate-200 group-hover:text-blue-400 transition truncate"><%= idea.title %></h4>
+                            <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs text-slate-500 mt-1">
                                 <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded uppercase font-bold tracking-wide border border-slate-700"><%= idea.category %></span>
-                                <span>• <%= idea.createdAt.toLocaleDateString() %></span>
+                                <span class="hidden sm:inline">• <%= idea.createdAt.toLocaleDateString() %></span>
                             </div>
                         </div>
 
-                        <div class="text-right flex flex-col items-end gap-2 min-w-[80px]">
-                            <div class="text-sm font-bold text-blue-400 flex items-center gap-1.5 bg-blue-500/10 px-2 py-1 rounded">
+                        <div class="text-right flex flex-col items-end gap-1 md:gap-2 shrink-0">
+                            <div class="text-xs md:text-sm font-bold text-blue-400 flex items-center gap-1.5 bg-blue-500/10 px-2 py-1 rounded">
                                 <i class="ri-eye-line"></i> <%= idea.views %>
                             </div>
-                            <div class="text-xs font-bold text-green-500 flex items-center gap-1">
-                                <i class="ri-arrow-up-circle-line"></i> <%= idea.upvotes.length %> Upvotes
+                            <div class="text-[10px] md:text-xs font-bold text-green-500 flex items-center gap-1">
+                                <i class="ri-arrow-up-circle-line"></i> <%= idea.upvotes.length %> <span class="hidden sm:inline">Upvotes</span>
                             </div>
                         </div>
                     </div>
                 <% }) %>
             <% } else { %>
-                <div class="text-center py-16 text-slate-500 bg-slate-900/20 rounded-xl border border-slate-800 border-dashed">
-                    <i class="ri-bar-chart-box-line text-4xl mb-3 block opacity-40"></i>
-                    <p>No activity data available yet.</p>
+                <div class="text-center py-12 md:py-16 text-slate-500 bg-slate-900/20 rounded-xl border border-slate-800 border-dashed">
+                    <i class="ri-bar-chart-box-line text-3xl md:text-4xl mb-3 block opacity-40"></i>
+                    <p class="text-sm md:text-base">No activity data available yet.</p>
                 </div>
             <% } %>
         </div>
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,11 +2,20 @@
 <html lang="en">
 <%- include('../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../partials/sidebar') %>
 
-    <main class="ml-64 flex-1 p-0 overflow-x-hidden">
+    <main class="ml-0 md:ml-64 flex-1 p-0 md:p-8 transition-all duration-300 w-full overflow-x-hidden">
         
-        <div class="h-64 relative bg-slate-900 group">
+        <div class="md:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-[#0F172A] sticky top-0 z-40">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div>
+        </div>
+
+        <div class="h-48 md:h-64 relative bg-slate-900 group md:rounded-3xl overflow-hidden">
             <% if (targetUser.bannerImage) { %>
                 <img src="<%= targetUser.bannerImage %>" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/20"></div> 
@@ -16,20 +25,20 @@
                 </div>
             <% } %>
             
-            <button onclick="history.back()" class="banner-btn absolute top-6 left-8 bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-full backdrop-blur-md transition flex items-center gap-2 border border-white/10 z-20">
+            <button onclick="history.back()" class="absolute top-4 left-4 md:top-6 md:left-8 bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-full backdrop-blur-md transition flex items-center gap-2 border border-white/10 z-20 text-sm font-bold">
                 <i class="ri-arrow-left-line"></i> Back
             </button>
         </div>
 
-        <div class="px-8 pb-8 -mt-24 relative z-10">
-            <div class="flex flex-col md:flex-row items-end gap-6">
+        <div class="px-4 md:px-8 pb-8 -mt-16 md:-mt-20 relative z-10">
+            <div class="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6 text-center md:text-left">
                 
                 <div class="shrink-0">
-                    <div class="w-40 h-40 rounded-full border-4 border-[#0F172A] bg-slate-800 flex items-center justify-center overflow-hidden shadow-2xl relative">
+                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#0F172A] bg-slate-800 flex items-center justify-center overflow-hidden shadow-2xl relative">
                         <% if (targetUser.image) { %>
                             <img src="<%= targetUser.image %>" class="w-full h-full object-cover">
                         <% } else { %>
-                            <div class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-5xl font-bold text-white">
+                            <div class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-4xl md:text-5xl font-bold text-white">
                                 <%= targetUser.displayName.charAt(0) %>
                             </div>
                         <% } %>
@@ -38,15 +47,15 @@
                 
                 <div class="flex-1 w-full flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
                     <div>
-                        <h1 class="text-4xl font-black text-white flex items-center gap-2 drop-shadow-md">
+                        <h1 class="text-2xl md:text-4xl font-black text-white flex items-center justify-center md:justify-start gap-2 drop-shadow-md">
                             <%= targetUser.displayName %>
                             <% if(targetUser.followers.length > 5) { %> 
-                                <i class="ri-verified-badge-fill text-blue-500 text-2xl" title="Verified Creator"></i> 
+                                <i class="ri-verified-badge-fill text-blue-500 text-xl md:text-2xl" title="Verified Creator"></i> 
                             <% } %>
                         </h1>
-                        <p class="text-blue-400 font-bold text-lg mt-0.5">@<%= targetUser.username %></p>
+                        <p class="text-blue-400 font-bold text-base md:text-lg mt-0.5">@<%= targetUser.username %></p>
                         
-                        <div class="flex flex-wrap items-center gap-4 text-slate-400 mt-2 text-sm font-medium">
+                        <div class="flex flex-wrap justify-center md:justify-start items-center gap-3 md:gap-4 text-slate-400 mt-2 text-xs md:text-sm font-medium">
                             <% if(targetUser.title) { %>
                                 <span class="text-white flex items-center gap-1"><i class="ri-briefcase-4-line text-blue-400"></i> <%= targetUser.title %></span>
                             <% } %>
@@ -59,14 +68,14 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-3">
+                    <div class="flex justify-center md:justify-start gap-3 mt-2 md:mt-0">
                         <% if (user && user._id.toString() === targetUser._id.toString()) { %>
-                            <a href="/settings" class="action-btn bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-full font-bold transition border border-slate-700 flex items-center gap-2">
+                            <a href="/settings" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-full font-bold transition border border-slate-700 flex items-center gap-2 text-sm md:text-base">
                                 <i class="ri-edit-line"></i> Edit Profile
                             </a>
                         <% } else if (user) { %>
                             <button onclick="profileToggleFollow(this, '<%= targetUser._id %>')" 
-                                class="action-btn <%= targetUser.followers.includes(user._id) ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-blue-600 text-white border border-blue-600' %> px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2">
+                                class="px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2 text-sm md:text-base <%= targetUser.followers.includes(user._id) ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-blue-600 text-white border border-blue-600 hover:bg-blue-500' %>">
                                 <% if (targetUser.followers.includes(user._id)) { %>
                                     <span class="flex items-center gap-2"><i class="ri-user-unfollow-line"></i> Unfollow</span>
                                 <% } else { %>
@@ -78,34 +87,35 @@
                 </div>
             </div>
 
-            <div class="mt-6 max-w-4xl">
-                <p class="text-slate-300 text-lg leading-relaxed"><%= targetUser.bio || "No bio added yet." %></p>
+            <div class="mt-6 md:mt-8 max-w-4xl text-center md:text-left">
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed"><%= targetUser.bio || "No bio added yet." %></p>
+                
                 <% if(targetUser.skills && targetUser.skills.length > 0) { %>
-                    <div class="flex flex-wrap gap-2 mt-4">
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-4">
                         <% targetUser.skills.forEach(skill => { %>
-                            <span class="px-3 py-1 bg-slate-800 text-blue-300 text-xs rounded-lg border border-slate-700 font-bold tracking-wide uppercase"><%= skill %></span>
+                            <span class="px-3 py-1 bg-slate-800 text-blue-300 text-[10px] md:text-xs rounded-lg border border-slate-700 font-bold tracking-wide uppercase"><%= skill %></span>
                         <% }) %>
                     </div>
                 <% } %>
             </div>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-8 border-b border-slate-800 pb-8">
-                <div class="flex gap-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mt-8 border-b border-slate-800 pb-8">
+                <div class="flex gap-8 md:gap-12 w-full justify-center md:justify-start">
                     <a href="/user/<%= targetUser._id %>/followers" class="group cursor-pointer text-center">
-                        <span class="block font-bold text-white text-xl group-hover:text-blue-400 transition" id="profileFollowerCount"><%= targetUser.followers.length %></span> 
-                        <span class="text-slate-500 text-sm">Followers</span>
+                        <span class="block font-bold text-white text-xl md:text-2xl group-hover:text-blue-400 transition" id="profileFollowerCount"><%= targetUser.followers.length %></span> 
+                        <span class="text-slate-500 text-xs md:text-sm uppercase tracking-wider font-bold">Followers</span>
                     </a>
                     <a href="/user/<%= targetUser._id %>/following" class="group cursor-pointer text-center">
-                        <span class="block font-bold text-white text-xl group-hover:text-blue-400 transition"><%= targetUser.following.length %></span> 
-                        <span class="text-slate-500 text-sm">Following</span>
+                        <span class="block font-bold text-white text-xl md:text-2xl group-hover:text-blue-400 transition"><%= targetUser.following.length %></span> 
+                        <span class="text-slate-500 text-xs md:text-sm uppercase tracking-wider font-bold">Following</span>
                     </a>
                     <div class="group text-center">
-                        <span class="block font-bold text-white text-xl group-hover:text-blue-400 transition"><%= ideas.length %></span> 
-                        <span class="text-slate-500 text-sm">Ideas</span>
+                        <span class="block font-bold text-white text-xl md:text-2xl group-hover:text-blue-400 transition"><%= ideas.length %></span> 
+                        <span class="text-slate-500 text-xs md:text-sm uppercase tracking-wider font-bold">Ideas</span>
                     </div>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-4">
                     <% if (targetUser.contacts.github) { %>
                         <a href="<%= targetUser.contacts.github %>" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="ri-github-fill text-xl"></i></a>
                     <% } %>
@@ -119,32 +129,32 @@
             </div>
         </div>
 
-        <div class="px-8 pb-12">
-            <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <div class="px-4 md:px-8 pb-12">
+            <h2 class="text-lg md:text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <i class="ri-grid-fill text-slate-600"></i> Latest Ideas
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <% if (ideas.length === 0) { %>
-                    <div class="col-span-full py-20 bg-slate-900/50 rounded-3xl border border-slate-800 border-dashed text-center">
-                        <i class="ri-lightbulb-off-line text-4xl text-slate-600 mb-2 block"></i>
-                        <p class="text-slate-500">No ideas posted yet.</p>
+                    <div class="col-span-full py-16 md:py-20 bg-slate-900/50 rounded-3xl border border-slate-800 border-dashed text-center">
+                        <i class="ri-lightbulb-off-line text-3xl md:text-4xl text-slate-600 mb-2 block"></i>
+                        <p class="text-slate-500 text-sm md:text-base">No ideas posted yet.</p>
                     </div>
                 <% } else { %>
                     <% ideas.forEach(idea => { %>
-                        <div class="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl hover:border-blue-500/30 transition group cursor-pointer h-full flex flex-col" onclick="window.location.href='/post/<%= idea._id %>'">
+                        <div class="bg-slate-900/50 border border-slate-800 p-5 md:p-6 rounded-3xl hover:border-blue-500/30 transition group cursor-pointer h-full flex flex-col" onclick="window.location.href='/post/<%= idea._id %>'">
                             <div class="flex justify-between items-start mb-4">
                                 <span class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-1 rounded uppercase tracking-wider"><%= idea.category %></span>
                                 <span class="text-xs text-slate-500"><%= idea.createdAt.toLocaleDateString() %></span>
                             </div>
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition"><%= idea.title %></h3>
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition truncate"><%= idea.title %></h3>
                             <p class="text-slate-400 text-sm line-clamp-3 mb-4 leading-relaxed flex-1"><%= idea.description %></p>
                             
-                            <div class="flex items-center justify-between text-slate-500 text-sm mt-auto pt-4 border-t border-slate-800/50">
+                            <div class="flex items-center justify-between text-slate-500 text-xs md:text-sm mt-auto pt-4 border-t border-slate-800/50">
                                 <div class="flex items-center gap-4">
-                                    <span class="flex items-center gap-1"><i class="ri-arrow-up-circle-line text-lg"></i> <%= idea.upvotesCount || idea.upvotes.length %></span>
-                                    <span class="flex items-center gap-1"><i class="ri-chat-1-line text-lg"></i> <%= idea.commentsCount || idea.comments.length %></span>
+                                    <span class="flex items-center gap-1"><i class="ri-arrow-up-circle-line text-base md:text-lg"></i> <%= idea.upvotesCount || idea.upvotes.length %></span>
+                                    <span class="flex items-center gap-1"><i class="ri-chat-1-line text-base md:text-lg"></i> <%= idea.commentsCount || idea.comments.length %></span>
                                 </div>
-                                <span class="flex items-center gap-1"><i class="ri-eye-line text-lg"></i> <%= idea.views %></span>
+                                <span class="flex items-center gap-1"><i class="ri-eye-line text-base md:text-lg"></i> <%= idea.views %></span>
                             </div>
                         </div>
                     <% }) %>
@@ -156,6 +166,28 @@
     <%- include('../partials/postModal') %>
 
     <script>
+        // Sidebar Toggle
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // Follow Logic
         async function profileToggleFollow(btn, userId) {
             try {
                 const res = await fetch(`/follow/${userId}`);
@@ -163,10 +195,10 @@
                 if(data.success) {
                     if(data.isFollowing) {
                         btn.innerHTML = `<span class="flex items-center gap-2"><i class="ri-user-unfollow-line"></i> Unfollow</span>`;
-                        btn.className = "action-btn bg-slate-800 text-slate-300 border border-slate-700 px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2";
+                        btn.className = "px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2 bg-slate-800 text-slate-300 border border-slate-700";
                     } else {
                         btn.innerHTML = `<span class="flex items-center gap-2"><i class="ri-user-add-line"></i> Follow</span>`;
-                        btn.className = "action-btn bg-blue-600 text-white border border-blue-600 px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2";
+                        btn.className = "px-8 py-2.5 rounded-full font-bold shadow-lg transition flex items-center gap-2 bg-blue-600 text-white border border-blue-600 hover:bg-blue-500";
                     }
                     const countSpan = document.getElementById('profileFollowerCount');
                     if(countSpan) countSpan.innerText = data.newCount;

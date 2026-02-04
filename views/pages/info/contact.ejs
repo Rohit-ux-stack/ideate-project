@@ -2,23 +2,63 @@
 <html lang="en">
 <%- include('../../partials/head') %>
 <body class="bg-[#0F172A] text-slate-200 min-h-screen flex font-sans">
+    
     <%- include('../../partials/sidebar') %>
-    <main class="ml-64 flex-1 p-12 flex items-center justify-center">
-        <div class="max-w-2xl w-full bg-slate-900/50 border border-slate-800 p-8 rounded-3xl shadow-2xl text-center">
-            <h1 class="text-4xl font-bold text-white mb-4">Get in Touch</h1>
-            <p class="text-slate-400 mb-8">Have a bug to report or a feature to suggest?</p>
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
-                    <h3 class="font-bold text-white">Email</h3>
-                    <p class="text-slate-500 text-sm">support@ideate.com</p>
+
+    <main class="ml-0 md:ml-64 flex-1 p-6 md:p-12 flex flex-col transition-all duration-300 w-full min-h-screen">
+        
+        <div class="md:hidden flex items-center justify-between mb-8 pb-4 border-b border-slate-800 shrink-0">
+            <button onclick="window.toggleSidebar()" class="text-slate-400 hover:text-white focus:outline-none p-1">
+                <i class="ri-menu-line text-2xl"></i>
+            </button>
+            <span class="text-xl font-bold italic text-blue-500 tracking-wider">IDEATE</span>
+            <div class="w-8"></div> </div>
+
+        <div class="flex-1 flex items-center justify-center w-full">
+            <div class="max-w-2xl w-full bg-slate-900/50 border border-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Get in Touch</h1>
+                <p class="text-slate-400 mb-8 text-sm md:text-base">Have a bug to report or a feature to suggest?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-white">Email</h3>
+                        <p class="text-slate-500 text-sm break-all">support@ideate.com</p>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-white">Twitter</h3>
+                        <p class="text-slate-500 text-sm">@IdeateApp</p>
+                    </div>
                 </div>
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
-                    <h3 class="font-bold text-white">Twitter</h3>
-                    <p class="text-slate-500 text-sm">@IdeateApp</p>
-                </div>
+                
+                <a href="mailto:support@ideate.com" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold inline-block transition-colors w-full md:w-auto">
+                    Send Email
+                </a>
             </div>
-            <a href="mailto:support@ideate.com" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">Send Email</a>
         </div>
+
     </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        };
+
+        // Close sidebar if clicked outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('mobileSidebar');
+            const menuBtn = e.target.closest('button[onclick="window.toggleSidebar()"]');
+            
+            if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
 </body>
 </html>

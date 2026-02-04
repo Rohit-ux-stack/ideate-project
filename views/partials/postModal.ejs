@@ -1,24 +1,40 @@
-<div id="postModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100] p-4 backdrop-blur-sm">
-    <div class="bg-[#11161D] border border-slate-800 w-full max-w-2xl rounded-3xl p-8 relative shadow-2xl">
-        <button onclick="document.getElementById('postModal').classList.replace('flex', 'hidden')" class="absolute top-6 right-6 text-slate-500 hover:text-white text-2xl">&times;</button>
+<div id="postModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100] p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#11161D] border border-slate-800 w-full max-w-2xl rounded-3xl p-6 md:p-8 relative shadow-2xl transform transition-all scale-100">
         
-        <h2 class="text-2xl font-bold mb-6 text-blue-500">Share Your Innovation</h2>
+        <button onclick="document.getElementById('postModal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 md:top-6 md:right-6 text-slate-500 hover:text-white text-3xl focus:outline-none p-2 leading-none">
+            &times;
+        </button>
         
-        <form action="/post-idea" method="POST" enctype="multipart/form-data" class="space-y-6">
-            <input type="text" name="title" placeholder="Project Title" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none" required>
+        <h2 class="text-xl md:text-2xl font-bold mb-6 text-blue-500 pr-10">Share Your Innovation</h2>
+        
+        <form action="/post-idea" method="POST" enctype="multipart/form-data" class="space-y-4 md:space-y-6">
             
-            <textarea name="description" placeholder="Describe your idea..." class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl h-32 focus:border-blue-500 outline-none resize-none" required></textarea>
+            <input type="text" name="title" placeholder="Project Title" 
+                   class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl focus:border-blue-500 outline-none text-white placeholder-slate-500 transition-colors text-sm md:text-base" required>
             
-            <div class="grid grid-cols-2 gap-6">
-                <select name="category" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl focus:border-blue-500 outline-none">
-                    <option value="Tech">Tech Upgrade</option>
-                    <option value="Startup">Startup Idea</option>
-                    <option value="Social">Social Impact</option>
-                </select>
-                <input type="file" name="ideaImages" multiple accept="image/*" class="w-full bg-[#161B22] border border-slate-800 p-4 rounded-xl text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:bg-blue-600 file:text-white hover:file:bg-blue-500">
+            <textarea name="description" placeholder="Describe your idea..." 
+                      class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl h-24 md:h-32 focus:border-blue-500 outline-none resize-none text-white placeholder-slate-500 transition-colors text-sm md:text-base" required></textarea>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                
+                <div class="relative">
+                    <select name="category" class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl focus:border-blue-500 outline-none text-slate-300 appearance-none cursor-pointer text-sm md:text-base">
+                        <option value="Tech">Tech Upgrade</option>
+                        <option value="Startup">Startup Idea</option>
+                        <option value="Social">Social Impact</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+
+                <input type="file" name="ideaImages" multiple accept="image/*" 
+                       class="w-full bg-[#161B22] border border-slate-800 p-3 md:p-4 rounded-xl text-xs md:text-sm text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
             </div>
             
-            <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg">Launch Idea</button>
+            <button type="submit" class="w-full bg-blue-600 py-3 md:py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition shadow-lg shadow-blue-900/20 active:scale-[0.98] text-sm md:text-base">
+                Launch Idea
+            </button>
         </form>
     </div>
 </div>
